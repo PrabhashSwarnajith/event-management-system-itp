@@ -1,0 +1,31 @@
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.npm-cache/
+
+# Backend
+backend/target/
+backend/.mvn/
+
+# OS / temp
+*.tmp
+*.swp
+*.swo
