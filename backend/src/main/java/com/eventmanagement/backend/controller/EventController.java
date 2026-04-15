@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Allows React to hit these APIs locally
 public class EventController {
 
     private final EventService eventService;
@@ -26,7 +25,12 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Event>> getAllEvents(@RequestParam(required = false) String search) {
+    public ResponseEntity<List<Event>> getAllEvents(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long organizerId) {
+        if (organizerId != null) {
+            return ResponseEntity.ok(eventService.getEventsByOrganizer(organizerId));
+        }
         if (search != null && !search.isEmpty()) {
             return ResponseEntity.ok(eventService.searchEvents(search));
         }
