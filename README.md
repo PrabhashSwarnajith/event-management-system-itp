@@ -1,12 +1,12 @@
 # Event Management System
 
-Basic full-stack starter project with a React + Tailwind CSS frontend and a Spring Boot backend.
+Full-stack starter project for a university Event Management System with a React + Vite + Tailwind CSS frontend and a Spring Boot backend.
 
 ## Project structure
 
 ```text
 event-management-system-itp/
-|- frontend/   # React + Webpack + Tailwind CSS
+|- frontend/   # React + Vite + Tailwind CSS
 |- backend/    # Spring Boot REST API
 |- .gitignore
 |- README.md
@@ -14,15 +14,18 @@ event-management-system-itp/
 
 ## Frontend
 
-- React with webpack
+- React with Vite
 - Tailwind CSS setup
-- Simple landing page
-- Backend health check integration
+- Login, signup, profile, and logout flow
+- Event listing, search, and organizer event management
 
 ## Backend
 
 - Spring Boot REST API
 - `/api/health` endpoint
+- Auth endpoints for signup and login
+- Event CRUD endpoints
+- H2 database for local development
 - CORS enabled for the local frontend
 
 ## Run the frontend
