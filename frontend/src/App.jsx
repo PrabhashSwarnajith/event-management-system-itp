@@ -1,12 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Calendar, MapPin, Ticket, User, LayoutDashboard, Home } from "lucide-react";
 
+import EventsPage from "./pages/EventsPage";
+import ManageEvents from "./pages/ManageEvents";
+
 // Placeholder Pages for Team Members
 const HomePage = () => <div className="p-10 text-center"><h1>Welcome to Uni Events</h1><p>Home Page</p></div>;
 // Member 1
 const AuthPage = () => <div className="p-10"><h2>Authentication / Profile (Member 1)</h2></div>;
-// Member 2
-const EventsPage = () => <div className="p-10"><h2>Events Management (Member 2)</h2></div>;
 // Member 3
 const VenuesPage = () => <div className="p-10"><h2>Venues Management (Member 3)</h2></div>;
 // Member 4
@@ -44,6 +45,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/events/*" element={<EventsPage />} />
+            <Route path="/manage-events" element={<ManageEvents />} />
             <Route path="/venues/*" element={<VenuesPage />} />
             <Route path="/bookings/*" element={<BookingsPage />} />
             <Route path="/dashboard/*" element={<AdminDashboard />} />
