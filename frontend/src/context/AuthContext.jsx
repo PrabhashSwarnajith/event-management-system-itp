@@ -14,11 +14,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
+    // save user details to local storage
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
+    // remove user details on logout
     localStorage.removeItem("user");
     setUser(null);
   };
