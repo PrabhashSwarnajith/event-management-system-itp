@@ -31,9 +31,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/health", "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/events/**").hasAnyRole("ORGANIZER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/events/**").hasAnyRole("ORGANIZER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasAnyRole("ORGANIZER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/venues/**").hasAnyRole("ORGANIZER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/venues/**").hasAnyRole("ORGANIZER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/venues/**").hasAnyRole("ORGANIZER", "ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

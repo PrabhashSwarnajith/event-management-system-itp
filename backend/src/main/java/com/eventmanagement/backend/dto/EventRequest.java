@@ -14,8 +14,8 @@ public class EventRequest {
     @NotBlank(message = "Description is required")
     private String description;
 
-    @NotBlank(message = "Location is required")
-    private String location;
+    @NotNull(message = "Venue ID is required")
+    private Long venueId;
 
     @NotBlank(message = "Category is required")
     private String category;

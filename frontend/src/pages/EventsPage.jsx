@@ -45,7 +45,7 @@ const EventsPage = () => {
   }, [events]);
 
   const uniqueLocations = useMemo(() => {
-    const locs = new Set(events.map(e => e.location).filter(Boolean));
+    const locs = new Set(events.map(e => e.venue?.name).filter(Boolean));
     return Array.from(locs).sort();
   }, [events]);
 
@@ -53,7 +53,7 @@ const EventsPage = () => {
   const filteredEvents = useMemo(() => {
     return events.filter(event => {
       if (filterCategory && event.category !== filterCategory) return false;
-      if (filterLocation && event.location !== filterLocation) return false;
+      if (filterLocation && event.venue?.name !== filterLocation) return false;
       if (filterDate && !event.eventDate?.startsWith(filterDate)) return false;
       return true;
     });

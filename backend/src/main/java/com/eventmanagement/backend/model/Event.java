@@ -27,8 +27,9 @@ public class Event {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @NotBlank(message = "Location is required")
-    private String location;
+    @ManyToOne
+    @JoinColumn(name = "venue_id", nullable = false)
+    private Venue venue;
 
     @NotBlank(message = "Category is required")
     private String category;
