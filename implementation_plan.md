@@ -54,6 +54,10 @@ The current codebase already contains a working React frontend, a Spring Boot ba
 - Frontend event detail page
 - Frontend event update and delete actions
 - Frontend event filters by category, date, and location
+- Venue model, repository, service, controller, and DTO
+- Venue CRUD APIs
+- Venue listing and management pages
+- Venue filters by location, capacity, and amenities
 
 ### Partially Completed
 - Authentication exists, but it currently uses a simple generated token instead of JWT.
@@ -62,7 +66,6 @@ The current codebase already contains a working React frontend, a Spring Boot ba
 - Organizer tools are finished on the frontend, but backend role protection still depends on JWT/Spring Security.
 
 ### Not Yet Implemented
-- Venue management
 - Booking and ticketing
 - Capacity validation during bookings
 - Payment flow
