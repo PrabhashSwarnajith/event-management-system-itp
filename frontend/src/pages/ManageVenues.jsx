@@ -155,6 +155,7 @@ const ManageVenues = () => {
             <input
               id="venue-name"
               required
+              maxLength="100"
               placeholder="e.g. Main Auditorium"
               value={formData.name}
               onChange={set("name")}
@@ -167,6 +168,7 @@ const ManageVenues = () => {
             <input
               id="venue-location"
               required
+              maxLength="200"
               placeholder="e.g. Block A, Ground Floor"
               value={formData.location}
               onChange={set("location")}
