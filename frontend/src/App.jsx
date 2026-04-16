@@ -9,11 +9,11 @@ import EventDetailsPage from "./pages/EventDetailsPage";
 import ManageEvents from "./pages/ManageEvents";
 import VenuesPage from "./pages/VenuesPage";
 import ManageVenues from "./pages/ManageVenues";
+import BookingsPage from "./pages/BookingsPage";
 
 // Placeholder Pages for Team Members
 const HomePage = () => <div className="p-10 text-center text-slate-800"><h1>Welcome to Uni Events</h1><p className="mt-2 text-slate-500">Discover and book tickets for upcoming university events.</p></div>;
 // Member 4
-const BookingsPage = () => <div className="p-10 text-center"><h2>My Bookings (Member 4)</h2></div>;
 // Member 5
 const AdminDashboard = () => <div className="p-10 text-center"><h2>Admin Dashboard & Payments (Member 5)</h2></div>;
 
