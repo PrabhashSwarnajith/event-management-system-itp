@@ -38,6 +38,11 @@ public class VenueService {
                 .orElseThrow(() -> new ResourceNotFoundException("Venue not found with ID: " + id));
     }
 
+    public boolean isVenueAvailable(Long id) {
+        Venue venue = getVenueById(id);
+        return Boolean.TRUE.equals(venue.getAvailable());
+    }
+
     public Venue updateVenue(Long id, VenueRequest request) {
         Venue venue = getVenueById(id);
         updateVenueFields(venue, request);

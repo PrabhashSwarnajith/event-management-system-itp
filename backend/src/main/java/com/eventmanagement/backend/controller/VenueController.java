@@ -38,6 +38,11 @@ public class VenueController {
         return ResponseEntity.ok(venueService.getVenueById(id));
     }
 
+    @GetMapping("/{id}/availability")
+    public ResponseEntity<Boolean> checkAvailability(@PathVariable Long id) {
+        return ResponseEntity.ok(venueService.isVenueAvailable(id));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Venue> updateVenue(@PathVariable Long id, @Valid @RequestBody VenueRequest request) {
         return ResponseEntity.ok(venueService.updateVenue(id, request));
