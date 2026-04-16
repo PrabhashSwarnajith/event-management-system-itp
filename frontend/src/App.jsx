@@ -14,18 +14,7 @@ import ManageVenues from "./pages/ManageVenues";
 import BookingsPage from "./pages/BookingsPage";
 import HomePage from "./pages/HomePage";
 
-// ─── Admin Dashboard placeholder ─────────────────────────────────────────────
-const AdminDashboard = () => (
-  <div className="max-w-4xl mx-auto px-6 py-20 text-center">
-    <div className="card p-12">
-      <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-5">
-        <LayoutDashboard className="w-8 h-8 text-indigo-600" />
-      </div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
-      <p className="text-slate-500">Payments & analytics coming soon.</p>
-    </div>
-  </div>
-);
+import AdminDashboard from "./pages/AdminDashboard";
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 const Navigation = () => {
