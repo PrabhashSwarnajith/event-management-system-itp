@@ -3,7 +3,9 @@ package com.eventmanagement.backend.service;
 import com.eventmanagement.backend.dto.EventRequest;
 import com.eventmanagement.backend.exception.ResourceNotFoundException;
 import com.eventmanagement.backend.model.Event;
+import com.eventmanagement.backend.model.Venue;
 import com.eventmanagement.backend.repository.EventRepository;
+import com.eventmanagement.backend.repository.VenueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.util.List;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final VenueRepository venueRepository;
 
     public Event createEvent(EventRequest request) {
         Event event = new Event();
@@ -57,9 +60,12 @@ public class EventService {
     }
 
     private void updateEventFields(Event event, EventRequest request) {
+        Venue venue = venueRepository.findById(request.getVenueId())
+                .orElseThrow(() -> new ResourceNotFoundException("Venue not found with ID: " + request.getVenueId()));
+
         event.setTitle(request.getTitle());
         event.setDescription(request.getDescription());
-        event.setLocation(request.getLocation());
+        event.setVenue(venue);
         event.setCategory(request.getCategory());
         event.setEventDate(request.getEventDate());
         event.setBannerUrl(request.getBannerUrl());
