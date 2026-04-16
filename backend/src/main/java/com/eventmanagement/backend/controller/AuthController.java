@@ -41,4 +41,10 @@ public class AuthController {
             @Valid @RequestBody ProfileUpdateRequest request) {
         return ResponseEntity.ok(authService.updateProfile(user, request));
     }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        authService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
 }

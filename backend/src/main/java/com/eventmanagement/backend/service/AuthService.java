@@ -69,4 +69,8 @@ public class AuthService {
         String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(token, user.getId(), user.getName(), user.getEmail(), user.getRole());
     }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
 }
