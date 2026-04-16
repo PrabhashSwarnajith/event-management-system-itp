@@ -28,7 +28,7 @@ const EventCard = ({ event }) => {
           </div>
           <div className="flex items-center gap-2">
             <MapPinIcon className="w-4 h-4 text-indigo-500" />
-            <span className="truncate">{event.location}</span>
+            <span className="truncate">{event.venue?.name || "No Venue"}</span>
           </div>
           <div className="flex items-center gap-2">
             <UsersIcon className="w-4 h-4 text-indigo-500" />
