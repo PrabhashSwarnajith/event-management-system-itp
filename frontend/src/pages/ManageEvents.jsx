@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { LinkIcon } from "lucide-react";
 
+// Primary dashboard view for organizers to create and manage their events
 const ManageEvents = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
