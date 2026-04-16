@@ -7,11 +7,11 @@ import ProfilePage from "./pages/ProfilePage";
 import EventsPage from "./pages/EventsPage";
 import EventDetailsPage from "./pages/EventDetailsPage";
 import ManageEvents from "./pages/ManageEvents";
+import VenuesPage from "./pages/VenuesPage";
+import ManageVenues from "./pages/ManageVenues";
 
 // Placeholder Pages for Team Members
 const HomePage = () => <div className="p-10 text-center text-slate-800"><h1>Welcome to Uni Events</h1><p className="mt-2 text-slate-500">Discover and book tickets for upcoming university events.</p></div>;
-// Member 3
-const VenuesPage = () => <div className="p-10 text-center"><h2>Venues Management (Member 3)</h2></div>;
 // Member 4
 const BookingsPage = () => <div className="p-10 text-center"><h2>My Bookings (Member 4)</h2></div>;
 // Member 5
@@ -64,7 +64,8 @@ function App() {
               <Route path="/events" element={<EventsPage />} />
               <Route path="/events/:id" element={<EventDetailsPage />} />
               <Route path="/manage-events" element={<ManageEvents />} />
-              <Route path="/venues/*" element={<VenuesPage />} />
+              <Route path="/venues" element={<VenuesPage />} />
+              <Route path="/manage-venues" element={<ManageVenues />} />
               <Route path="/bookings/*" element={<BookingsPage />} />
               <Route path="/dashboard/*" element={<AdminDashboard />} />
             </Routes>
