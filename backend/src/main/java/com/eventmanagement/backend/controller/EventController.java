@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Core REST controller for managing all event-related operations
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
