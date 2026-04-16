@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { LogOut, Save, User } from "lucide-react";
+import { LogOut, Save, User, Mail, Shield, Hash, CheckCircle, AlertCircle, Trash2, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+const ROLE_COLORS = {
+  ADMIN: "badge-red",
+  ORGANIZER: "badge-indigo",
+  ATTENDEE: "badge-green",
+};
 
 const ProfilePage = () => {
   const { user, updateUser, logout, authFetch } = useAuth();
@@ -9,6 +15,9 @@ const ProfilePage = () => {
   const [formData, setFormData] = useState({ name: "", email: "" });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -17,7 +26,16 @@ const ProfilePage = () => {
   }, [user]);
 
   if (!user) {
-    return <div className="p-10 text-center">Please login to view your profile.</div>;
+    return (
+      <div className="max-w-3xl mx-auto px-6 py-28 text-center animate-fade-in">
+        <div className="card p-12">
+          <User className="w-14 h-14 text-slate-300 mx-auto mb-5" />
+          <h2 className="text-2xl font-bold text-slate-800 mb-3">Not Logged In</h2>
+          <p className="text-slate-500 mb-6">Please log in to view your profile.</p>
+          <a href="/auth" className="btn-primary">Go to Login</a>
+        </div>
+      </div>
+    );
   }
 
   const handleLogout = () => {
@@ -29,100 +47,257 @@ const ProfilePage = () => {
     e.preventDefault();
     setMessage("");
     setError("");
+    setSaving(true);
 
     try {
-      const response = await authFetch("http://localhost:8080/api/auth/profile", {
+      const res = await authFetch("http://localhost:8080/api/auth/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Could not update profile");
-      }
-
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Could not update profile");
       updateUser(data);
-      setMessage("Profile updated successfully.");
+      setMessage("Profile updated successfully!");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!deleteConfirm) {
+      setDeleteConfirm(true);
+      return;
+    }
+
+    setDeleting(true);
+    setError("");
+
+    try {
+      const res = await authFetch(`http://localhost:8080/api/auth/users/${user.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Could not delete account");
+      }
+
+      logout();
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+      setDeleting(false);
+    }
+  };
+
+  const initials = user.name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
-    <div className="max-w-3xl mx-auto p-6 mt-10">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="bg-indigo-600 h-32"></div>
-        <div className="px-8 pb-8">
-          <div className="relative flex justify-between items-end -mt-12 mb-6">
-            <div className="w-24 h-24 bg-indigo-50 rounded-full p-2 border-4 border-white shadow-md flex items-center justify-center text-indigo-600">
-              <User size={48} />
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
+      {/* Profile card */}
+      <div className="card overflow-hidden mb-6">
+        {/* Hero banner */}
+        <div className="h-32 bg-gradient-to-r from-indigo-600 to-violet-600 relative">
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 30% 50%, white, transparent 50%)" }} />
+        </div>
+
+        <div className="px-7 pb-7">
+          {/* Avatar + actions */}
+          <div className="flex items-end justify-between -mt-12 mb-5">
+            <div className="relative group">
+              <div
+                className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl font-black shadow-lg border-4 border-white"
+                aria-label={`Avatar for ${user.name}`}
+              >
+                {initials || <User className="w-10 h-10" />}
+              </div>
             </div>
+
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg font-medium hover:bg-red-100 transition"
+              className="btn-ghost text-red-600 border-red-200 hover:bg-red-50 cursor-pointer"
+              id="profile-logout-btn"
             >
-              <LogOut size={18} /> Logout
+              <LogOut className="w-4 h-4" />
+              Sign Out
             </button>
           </div>
 
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-slate-900">{user.name}</h1>
-            <p className="text-slate-500 mt-1">{user.email}</p>
-            <span className="inline-block mt-3 px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-full uppercase tracking-wider">
+          {/* Name + role */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-black text-slate-900 mb-0.5">{user.name}</h1>
+            <p className="text-slate-500 mb-3">{user.email}</p>
+            <span className={`badge ${ROLE_COLORS[user.role] || "badge-slate"}`}>
               {user.role}
             </span>
           </div>
 
-          {(message || error) && (
-            <div className={`mb-6 rounded-lg p-3 text-sm font-medium ${message ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-600 border border-red-100"}`}>
-              {message || error}
+          {/* Account info grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-5 mb-6">
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">
+                <Hash className="w-3.5 h-3.5" /> User ID
+              </div>
+              <p className="text-sm font-mono text-slate-700 truncate">{user.id}</p>
             </div>
-          )}
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">
+                <Shield className="w-3.5 h-3.5" /> Role
+              </div>
+              <p className="text-sm font-semibold text-slate-700">{user.role}</p>
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">
+                <CheckCircle className="w-3.5 h-3.5" /> Status
+              </div>
+              <p className="text-sm font-semibold text-emerald-600">Active</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <form onSubmit={handleSubmit} className="border-t pt-8">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4">Edit Profile</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="text-sm font-medium text-slate-500">Full Name</label>
+      {/* Edit form */}
+      <div className="card p-7">
+        <h2 className="text-xl font-bold text-slate-900 mb-5">Edit Profile</h2>
+
+        {/* Alert messages */}
+        {message && (
+          <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 p-4 rounded-xl text-sm mb-5 font-semibold animate-fade-in" role="status">
+            <CheckCircle className="w-5 h-5 shrink-0" />
+            {message}
+          </div>
+        )}
+        {error && (
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm mb-5 font-semibold animate-fade-in" role="alert">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Name */}
+            <div>
+              <label htmlFor="profile-name" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Full Name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" aria-hidden="true" />
                 <input
-                  required
+                  id="profile-name"
                   type="text"
+                  required
+                  className="input-field pl-10"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium text-slate-500">Email Address</label>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label htmlFor="profile-email" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" aria-hidden="true" />
                 <input
-                  required
+                  id="profile-email"
                   type="email"
+                  required
+                  className="input-field pl-10"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
             </div>
+          </div>
 
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5 rounded-xl border border-slate-100 bg-slate-50 p-5">
-              <div>
-                <label className="text-sm font-medium text-slate-500">Record ID</label>
-                <p className="mt-1 font-mono text-slate-900">{user.id}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-500">Account Status</label>
-                <p className="mt-1 text-emerald-600 font-medium">Active</p>
-              </div>
-            </div>
-
+          <div className="pt-2">
             <button
               type="submit"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700"
+              disabled={saving}
+              className="btn-primary cursor-pointer"
+              id="profile-save-btn"
+              aria-busy={saving}
             >
-              <Save size={18} /> Save Changes
+              {saving ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Changes
+                </>
+              )}
             </button>
-          </form>
+          </div>
+        </form>
+
+        {/* Danger Zone - Delete Account */}
+        <div className="mt-8 pt-8 border-t border-slate-200">
+          <h3 className="text-lg font-bold text-red-600 mb-4 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            Danger Zone
+          </h3>
+          
+          {deleteConfirm ? (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-4">
+              <p className="text-red-900 font-semibold mb-4">
+                ⚠️ Are you sure? This action cannot be undone. Your account and all associated data will be permanently deleted.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  id="confirm-delete-btn"
+                >
+                  {deleting ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Yes, Delete My Account
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteConfirm(false);
+                    setError("");
+                  }}
+                  disabled={deleting}
+                  className="flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer"
+                  id="cancel-delete-btn"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={handleDeleteAccount}
+              className="w-full bg-red-50 hover:bg-red-100 border border-red-300 text-red-700 font-semibold py-3 px-4 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+              id="delete-account-btn"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Account
+            </button>
+          )}
         </div>
       </div>
     </div>
