@@ -236,6 +236,7 @@ const ManageEvents = () => {
               required
               type="datetime-local"
               className={inputClass}
+              min={new Date().toISOString().slice(0, 16)}
               value={formData.eventDate}
               onChange={set("eventDate")}
             />
