@@ -90,6 +90,7 @@ const BookingCard = ({ booking, onViewTicket, onCancel }) => {
   const formattedTime = eventDateObj.toLocaleTimeString("en-US", {
     hour: "2-digit", minute: "2-digit",
   });
+  const isPast = eventDateObj < new Date();
 
   return (
     <article className="card overflow-hidden flex flex-col sm:flex-row animate-fade-up group">
@@ -152,7 +153,7 @@ const BookingCard = ({ booking, onViewTicket, onCancel }) => {
             <ReceiptText className="w-4 h-4" /> View Ticket
           </button>
 
-          {booking.status === "CONFIRMED" && (
+          {!isPast && booking.status === "CONFIRMED" && (
             <button
               onClick={() => onCancel(booking.id)}
               className="btn-ghost text-red-600 border-red-200 hover:bg-red-50 text-sm py-2 px-3 cursor-pointer"
