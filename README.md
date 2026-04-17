@@ -18,6 +18,7 @@ event-management-system-itp/
 - Tailwind CSS setup
 - Login, signup, profile, and logout flow
 - Event listing, search, and organizer event management
+- Venue listing, filtering, and organizer venue management
 
 ## Backend
 
@@ -25,6 +26,7 @@ event-management-system-itp/
 - `/api/health` endpoint
 - Auth endpoints for signup and login
 - Event CRUD endpoints
+- Venue CRUD endpoints
 - H2 database for local development
 - CORS enabled for the local frontend
 

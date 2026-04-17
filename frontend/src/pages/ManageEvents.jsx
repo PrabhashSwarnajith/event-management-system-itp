@@ -5,7 +5,7 @@ import { CalendarIcon, Edit2Icon, LinkIcon, MapPinIcon, Trash2Icon, UsersIcon, X
 const emptyForm = {
   title: "",
   description: "",
-  location: "",
+  venueId: "",
   category: "",
   eventDate: "",
   bannerUrl: "",
@@ -22,6 +22,7 @@ const toDateTimeLocalValue = (value) => {
 const ManageEvents = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState("");
   
@@ -38,13 +39,22 @@ const ManageEvents = () => {
       setEvents(data);
   };
 
-  useEffect(() => { fetchMyEvents(); }, [user?.id, user?.role]);
+  const fetchVenues = async () => {
+      const res = await fetch("http://localhost:8080/api/venues");
+      const data = await res.json();
+      setVenues(data);
+  };
+
+  useEffect(() => { 
+    fetchMyEvents(); 
+    fetchVenues();
+  }, [user?.id, user?.role]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if(!user?.id) return alert("You must be logged in to create an event!");
 
-    const payload = { ...formData, capacity: parseInt(formData.capacity), organizerId: user.id };
+    const payload = { ...formData, capacity: parseInt(formData.capacity), venueId: parseInt(formData.venueId), organizerId: user.id };
     const url = editingId
       ? `http://localhost:8080/api/events/${editingId}`
       : "http://localhost:8080/api/events";
@@ -67,7 +77,7 @@ const ManageEvents = () => {
     setFormData({
       title: event.title || "",
       description: event.description || "",
-      location: event.location || "",
+      venueId: event.venue?.id?.toString() || "",
       category: event.category || "",
       eventDate: toDateTimeLocalValue(event.eventDate),
       bannerUrl: event.bannerUrl || "",
@@ -140,8 +150,13 @@ const ManageEvents = () => {
             <input required type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-100" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-slate-700">Location</label>
-            <input required type="text" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-100" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
+            <label className="block text-sm font-medium mb-1 text-slate-700">Venue</label>
+            <select required className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-indigo-100" value={formData.venueId} onChange={e => setFormData({...formData, venueId: e.target.value})}>
+              <option value="">Select a venue</option>
+              {venues.map(v => (
+                <option key={v.id} value={v.id}>{v.name} (Cap: {v.capacity})</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1 text-slate-700">Date & Time</label>
@@ -192,7 +207,7 @@ const ManageEvents = () => {
                     <p className="text-sm text-slate-500">{event.description}</p>
                     <div className="mt-3 grid gap-2 text-sm font-medium text-slate-600 sm:grid-cols-3">
                       <span className="flex items-center gap-2"><CalendarIcon size={16} className="text-indigo-500" /> {new Date(event.eventDate).toLocaleString()}</span>
-                      <span className="flex items-center gap-2"><MapPinIcon size={16} className="text-indigo-500" /> {event.location}</span>
+                      <span className="flex items-center gap-2"><MapPinIcon size={16} className="text-indigo-500" /> {event.venue?.name || "No Venue"}</span>
                       <span className="flex items-center gap-2"><UsersIcon size={16} className="text-indigo-500" /> {event.capacity} seats</span>
                     </div>
                   </div>
