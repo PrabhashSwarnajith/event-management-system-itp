@@ -58,22 +58,23 @@ The current codebase already contains a working React frontend, a Spring Boot ba
 - Venue CRUD APIs
 - Venue listing and management pages
 - Venue filters by location, capacity, and amenities
+- Booking model, repository, service, controller, and DTO
+- Ticket booking from event details page
+- Capacity validation before confirming bookings
+- My bookings page with upcoming, past, and cancelled sections
+- Booking cancellation
+- Simple booking confirmation API and frontend ticket view
 
 ### Partially Completed
-- Authentication exists, but it currently uses a simple generated token instead of JWT.
-- Role values exist on users, but backend endpoints are not protected by role yet.
 - Event document/banner handling uses URL fields, not real file uploads.
-- Organizer tools are finished on the frontend, but backend role protection still depends on JWT/Spring Security.
+- Ticket confirmation is displayed in the app, but it is not exported as a PDF yet.
 
 ### Not Yet Implemented
-- Booking and ticketing
-- Capacity validation during bookings
 - Payment flow
 - Reviews and ratings
 - Admin dashboard
 - PDF ticket/receipt generation
 - MySQL production profile
-- Full JWT security
 
 ## 4. Existing Backend API Summary
 
@@ -91,6 +92,19 @@ The current codebase already contains a working React frontend, a Spring Boot ba
 - `GET /api/events/{id}`
 - `PUT /api/events/{id}`
 - `DELETE /api/events/{id}`
+
+### Venues
+- `POST /api/venues`
+- `GET /api/venues`
+- `GET /api/venues/{id}`
+- `PUT /api/venues/{id}`
+- `DELETE /api/venues/{id}`
+
+### Bookings
+- `POST /api/bookings`
+- `GET /api/bookings/my-bookings`
+- `GET /api/bookings/{id}/ticket`
+- `PUT /api/bookings/{id}/cancel`
 
 ## 5. Member Roles and Responsibilities
 
