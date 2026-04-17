@@ -1,21 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { CalendarIcon, MapPinIcon, TicketIcon, XCircleIcon } from "lucide-react";
+import { CalendarIcon, MapPinIcon, TicketIcon, XCircleIcon, ReceiptTextIcon } from "lucide-react";
 
 const BookingsPage = () => {
-  const { user } = useAuth();
+  const { user, authFetch } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("upcoming");
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [ticketError, setTicketError] = useState("");
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/bookings/my-bookings", {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      });
+      const response = await authFetch("http://localhost:8080/api/bookings/my-bookings");
       if (!response.ok) {
         throw new Error("Failed to fetch bookings");
       }
@@ -41,11 +40,8 @@ const BookingsPage = () => {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/bookings/${id}/cancel`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
+      const response = await authFetch(`http://localhost:8080/api/bookings/${id}/cancel`, {
+        method: "PUT"
       });
 
       if (!response.ok) {
@@ -57,6 +53,31 @@ const BookingsPage = () => {
       alert(err.message);
     }
   };
+
+  const handleViewTicket = async (id) => {
+    setTicketError("");
+    try {
+      const response = await authFetch(`http://localhost:8080/api/bookings/${id}/ticket`);
+      if (!response.ok) {
+        throw new Error("Failed to load ticket");
+      }
+      setSelectedTicket(await response.json());
+    } catch (err) {
+      setTicketError(err.message);
+    }
+  };
+
+  const now = new Date();
+  const visibleBookings = bookings.filter((booking) => {
+    const eventDate = new Date(booking.event?.eventDate);
+    if (activeTab === "past") {
+      return eventDate < now;
+    }
+    if (activeTab === "cancelled") {
+      return booking.status === "CANCELLED";
+    }
+    return eventDate >= now && booking.status !== "CANCELLED";
+  });
 
   if (!user) {
     return (
@@ -74,7 +95,22 @@ const BookingsPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
-      <h1 className="text-3xl font-extrabold text-slate-900 mb-8">My Bookings</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+        <h1 className="text-3xl font-extrabold text-slate-900">My Bookings</h1>
+        <div className="inline-flex rounded-lg border border-slate-200 bg-white p-1">
+          {["upcoming", "past", "cancelled"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 text-sm font-bold capitalize rounded-md transition ${
+                activeTab === tab ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -93,9 +129,14 @@ const BookingsPage = () => {
             Browse Events
           </Link>
         </div>
+      ) : visibleBookings.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-slate-200 border-dashed p-12 text-center shadow-sm">
+          <h2 className="text-xl font-bold text-slate-800 mb-2">No {activeTab} bookings</h2>
+          <p className="text-slate-500">Bookings in this section will appear here.</p>
+        </div>
       ) : (
         <div className="space-y-6">
-          {bookings.map((booking) => (
+          {visibleBookings.map((booking) => (
             <div key={booking.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col md:flex-row shadow-sm">
               <div className="w-full md:w-48 h-48 md:h-auto bg-slate-100 shrink-0">
                  <img 
@@ -135,6 +176,12 @@ const BookingsPage = () => {
                   <Link to={`/events/${booking.event?.id}`} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-200 transition text-center w-full md:w-auto">
                     View Event
                   </Link>
+                  <button
+                    onClick={() => handleViewTicket(booking.id)}
+                    className="px-4 py-2 bg-white border border-indigo-200 text-indigo-700 rounded-lg text-sm font-bold hover:bg-indigo-50 hover:border-indigo-300 transition flex justify-center items-center gap-2 w-full md:w-auto"
+                  >
+                    <ReceiptTextIcon size={16} /> Ticket
+                  </button>
                   {booking.status === 'CONFIRMED' && (
                     <button 
                       onClick={() => handleCancelBooking(booking.id)}
@@ -147,6 +194,39 @@ const BookingsPage = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {ticketError && (
+        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+          {ticketError}
+        </div>
+      )}
+
+      {selectedTicket && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-wide text-indigo-600">Booking Ticket</p>
+                <h2 className="text-2xl font-extrabold text-slate-900">{selectedTicket.eventTitle}</h2>
+              </div>
+              <button
+                onClick={() => setSelectedTicket(null)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+            <div className="mt-5 grid gap-3 text-sm">
+              <div className="flex justify-between gap-4"><span className="text-slate-500">Code</span><strong>{selectedTicket.confirmationCode}</strong></div>
+              <div className="flex justify-between gap-4"><span className="text-slate-500">Attendee</span><strong>{selectedTicket.attendeeName}</strong></div>
+              <div className="flex justify-between gap-4"><span className="text-slate-500">Venue</span><strong>{selectedTicket.venueName}</strong></div>
+              <div className="flex justify-between gap-4"><span className="text-slate-500">Event Date</span><strong>{new Date(selectedTicket.eventDate).toLocaleString()}</strong></div>
+              <div className="flex justify-between gap-4"><span className="text-slate-500">Tickets</span><strong>{selectedTicket.ticketCount}</strong></div>
+              <div className="flex justify-between gap-4"><span className="text-slate-500">Status</span><strong>{selectedTicket.status}</strong></div>
+            </div>
+          </div>
         </div>
       )}
     </div>

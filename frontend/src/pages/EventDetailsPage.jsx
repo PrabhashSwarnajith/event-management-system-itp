@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 
 const EventDetailsPage = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, authFetch } = useAuth();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,11 +42,10 @@ const EventDetailsPage = () => {
     setBookingStatus("");
     
     try {
-      const response = await fetch("http://localhost:8080/api/bookings", {
+      const response = await authFetch("http://localhost:8080/api/bookings", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           eventId: event.id,
@@ -150,7 +149,10 @@ const EventDetailsPage = () => {
               <h3 className="text-xl font-bold text-slate-900 mb-1">Ready to join?</h3>
               <p className="text-slate-500 mb-3">Secure your spot before tickets run out.</p>
               {bookingStatus === "success" ? (
-                <div className="text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded inline-block">Tickets Booked Successfully!</div>
+                <div className="inline-flex flex-wrap items-center gap-2 text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded">
+                  Tickets Booked Successfully!
+                  <Link to="/bookings" className="underline underline-offset-2">View ticket</Link>
+                </div>
               ) : bookingStatus ? (
                 <div className="text-red-600 font-bold bg-red-50 px-3 py-1 rounded inline-block">{bookingStatus}</div>
               ) : null}
