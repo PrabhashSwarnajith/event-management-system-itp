@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { LogOut, Save, User, Mail, Shield, Hash, CheckCircle, AlertCircle, Trash2, Lock } from "lucide-react";
+import { LogOut, Save, User, Mail, Shield, Hash, CheckCircle, AlertCircle, Trash2, Calendar, Ticket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ROLE_COLORS = {
@@ -19,11 +19,41 @@ const ProfilePage = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const [stats, setStats] = useState({ bookings: 0, events: 0 });
+
   useEffect(() => {
     if (user) {
       setFormData({ name: user.name || "", email: user.email || "" });
+      
+      // Fetch Account Statistics
+      const fetchStats = async () => {
+        try {
+          let bookingsCount = 0;
+          let eventsCount = 0;
+          
+          const bookingsRes = await authFetch("http://localhost:8080/api/bookings");
+          if (bookingsRes.ok) {
+            const bData = await bookingsRes.json();
+            bookingsCount = bData.length;
+          }
+          
+          if (user.role === "ORGANIZER" || user.role === "ADMIN") {
+            const eventsRes = await authFetch("http://localhost:8080/api/events/organizer");
+            if (eventsRes.ok) {
+              const eData = await eventsRes.json();
+              eventsCount = eData.length;
+            }
+          }
+          
+          setStats({ bookings: bookingsCount, events: eventsCount });
+        } catch (error) {
+          console.error("Failed to fetch stats", error);
+        }
+      };
+      
+      fetchStats();
     }
-  }, [user]);
+  }, [user, authFetch]);
 
   if (!user) {
     return (
@@ -159,6 +189,35 @@ const ProfilePage = () => {
                 <CheckCircle className="w-3.5 h-3.5" /> Status
               </div>
               <p className="text-sm font-semibold text-emerald-600">Active</p>
+            </div>
+          </div>
+          </div>
+
+          {/* Account Statistics Overview (Special Function - Member 1) */}
+          <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5 mb-6">
+            <h3 className="text-sm font-bold text-indigo-900 mb-4 flex items-center gap-2">
+              <User className="w-4 h-4 text-indigo-500" /> Account Statistics Overview
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-indigo-50">
+                <div className="flex items-center gap-2 text-indigo-600 mb-2">
+                  <Ticket className="w-5 h-5" />
+                  <span className="font-semibold text-sm">Total Bookings</span>
+                </div>
+                <p className="text-3xl font-black text-slate-800">{stats.bookings}</p>
+                <p className="text-xs text-slate-500 mt-1">Events you have booked</p>
+              </div>
+              
+              {(user.role === "ORGANIZER" || user.role === "ADMIN") && (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-indigo-50">
+                  <div className="flex items-center gap-2 text-violet-600 mb-2">
+                    <Calendar className="w-5 h-5" />
+                    <span className="font-semibold text-sm">Events Organized</span>
+                  </div>
+                  <p className="text-3xl font-black text-slate-800">{stats.events}</p>
+                  <p className="text-xs text-slate-500 mt-1">Events created by you</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
