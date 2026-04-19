@@ -6,6 +6,7 @@ import {
   XCircleIcon, ReceiptText, ArrowRight,
   Clock, CheckCircle2, XCircle, AlertCircle
 } from "lucide-react";
+import QRCode from "react-qr-code";
 
 // Status badge colour map
 const STATUS_STYLES = {
@@ -45,6 +46,19 @@ const TicketModal = ({ ticket, onClose }) => (
 
       {/* Ticket body */}
       <div className="rounded-b-2xl bg-white border border-t-0 border-slate-200 shadow-2xl p-6">
+        
+        {/* QR Code Section (Special Function - Member 4) */}
+        <div className="flex flex-col items-center justify-center mb-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+          <div className="bg-white p-2 rounded-lg shadow-sm border border-slate-200">
+            <QRCode 
+              value={`CONFIRMATION:${ticket.confirmationCode}|EVENT:${ticket.eventTitle}|TICKETS:${ticket.ticketCount}`} 
+              size={120} 
+              level="M"
+            />
+          </div>
+          <p className="text-xs text-slate-400 mt-3 font-semibold uppercase tracking-widest">Scan to verify</p>
+        </div>
+
         <dl className="grid gap-3 text-sm">
           {[
             { label: "Confirmation Code", value: ticket.confirmationCode, mono: true },
