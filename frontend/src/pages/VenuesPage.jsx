@@ -56,7 +56,7 @@ const VenueCard = ({ venue }) => (
         {venue.description || "No description provided."}
       </p>
 
-      <ul className="space-y-1.5 text-sm font-medium text-slate-600" aria-label="Venue details">
+      <ul className="space-y-1.5 text-sm font-medium text-slate-600 mb-4" aria-label="Venue details">
         <li className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-indigo-400 shrink-0" aria-hidden="true" />
           {venue.location}
@@ -72,6 +72,18 @@ const VenueCard = ({ venue }) => (
           </li>
         )}
       </ul>
+
+      <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
+        <a 
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.name + " " + venue.location)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5 uppercase tracking-wide transition-colors"
+          id={`venue-map-link-${venue.id}`}
+        >
+          <MapPin className="w-3.5 h-3.5" /> View on Map <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
+        </a>
+      </div>
     </div>
   </article>
 );
