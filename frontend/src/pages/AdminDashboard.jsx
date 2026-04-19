@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Users, Calendar, Building2, Ticket, Activity, AlertCircle } from "lucide-react";
+import { Users, Calendar, Building2, Ticket, Activity, AlertCircle, BarChart2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from "recharts";
 
 const AdminDashboard = () => {
   const { user, authFetch } = useAuth();
@@ -41,6 +42,13 @@ const AdminDashboard = () => {
       </div>
     );
   }
+
+  const chartData = [
+    { name: "Users", value: stats.totalUsers, color: "#3b82f6" },
+    { name: "Events", value: stats.totalEvents, color: "#4f46e5" },
+    { name: "Venues", value: stats.totalVenues, color: "#10b981" },
+    { name: "Bookings", value: stats.totalBookings, color: "#f59e0b" },
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
@@ -114,6 +122,50 @@ const AdminDashboard = () => {
               <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Bookings</p>
               <h3 className="text-3xl font-black text-slate-900 mt-1">{stats.totalBookings}</h3>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Visual Analytics Chart (Special Function - Member 5) */}
+      {!loading && !error && (
+        <div className="card p-7 mt-8 animate-fade-up border-t-4 border-t-indigo-500">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <BarChart2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">System Analytics</h2>
+              <p className="text-sm text-slate-500">Visual overview of platform metrics</p>
+            </div>
+          </div>
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }}
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#94a3b8', fontSize: 12 }}
+                />
+                <Tooltip 
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  formatter={(value) => [<span className="font-bold text-slate-700">{value}</span>, "Total"]}
+                />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}
