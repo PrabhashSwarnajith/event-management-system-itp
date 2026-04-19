@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   CalendarIcon, Edit2Icon, Link2, MapPinIcon, Trash2Icon,
-  UsersIcon, XIcon, PlusCircle, CheckCircle, AlertCircle, Eye
+  UsersIcon, XIcon, PlusCircle, CheckCircle, AlertCircle, Eye, Download
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -112,6 +112,33 @@ const ManageEvents = () => {
     if (editingId === eventId) handleCancelEdit();
     setMessage("Event deleted successfully.");
     fetchMyEvents();
+  };
+
+  const exportToCSV = () => {
+    if (!events.length) return;
+    const headers = ["ID", "Title", "Category", "Date", "Capacity", "Venue"];
+    const csvRows = [headers.join(",")];
+    
+    events.forEach(event => {
+      const row = [
+        event.id,
+        `"${event.title?.replace(/"/g, '""') || ""}"`,
+        `"${event.category || ""}"`,
+        event.eventDate,
+        event.capacity,
+        `"${event.venue?.name || "No Venue"}"`
+      ];
+      csvRows.push(row.join(","));
+    });
+    
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "my_events.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const set = (key) => (e) => setFormData((f) => ({ ...f, [key]: e.target.value }));
@@ -333,12 +360,23 @@ const ManageEvents = () => {
 
       {/* Events list */}
       <div className="card p-7 animate-fade-up">
-        <h2 className="text-xl font-bold text-slate-900 mb-5">
-          Published Events
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <h2 className="text-xl font-bold text-slate-900">
+            Published Events
+            {events.length > 0 && (
+              <span className="ml-2 badge badge-indigo">{events.length}</span>
+            )}
+          </h2>
           {events.length > 0 && (
-            <span className="ml-2 badge badge-indigo">{events.length}</span>
+            <button
+              onClick={exportToCSV}
+              className="btn-ghost text-indigo-700 border-indigo-200 hover:bg-indigo-50 text-sm py-1.5 px-3 cursor-pointer shrink-0"
+              id="manage-events-export-csv"
+            >
+              <Download className="w-4 h-4" /> Export to CSV
+            </button>
           )}
-        </h2>
+        </div>
 
         {events.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-slate-500">
