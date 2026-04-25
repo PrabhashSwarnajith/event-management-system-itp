@@ -19,14 +19,28 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
+  const updateUser = (userData) => {
+    localStorage.setItem("user", JSON.stringify(userData));
+    setUser(userData);
+  };
+
   const logout = () => {
     // remove user details on logout
     localStorage.removeItem("user");
     setUser(null);
   };
 
+  const authFetch = (url, options = {}) => {
+    const headers = {
+      ...(options.headers || {}),
+      ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {})
+    };
+
+    return fetch(url, { ...options, headers });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, updateUser, logout, authFetch }}>
       {children}
     </AuthContext.Provider>
   );
