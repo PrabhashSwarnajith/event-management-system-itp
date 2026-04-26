@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { LogOut, Save, User, Mail, Shield, Hash, CheckCircle, AlertCircle, Camera } from "lucide-react";
+import { LogOut, Save, User, Mail, Shield, Hash, CheckCircle, AlertCircle, Trash2, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ROLE_COLORS = {
@@ -16,6 +16,8 @@ const ProfilePage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -61,6 +63,33 @@ const ProfilePage = () => {
       setError(err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deleteConfirm) {
+      setDeleteConfirm(true);
+      return;
+    }
+
+    setDeleting(true);
+    setError("");
+
+    try {
+      const res = await authFetch(`http://localhost:8080/api/auth/users/${user.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Could not delete account");
+      }
+
+      logout();
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+      setDeleting(false);
     }
   };
 
@@ -214,6 +243,62 @@ const ProfilePage = () => {
             </button>
           </div>
         </form>
+
+        {/* Danger Zone - Delete Account */}
+        <div className="mt-8 pt-8 border-t border-slate-200">
+          <h3 className="text-lg font-bold text-red-600 mb-4 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            Danger Zone
+          </h3>
+          
+          {deleteConfirm ? (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-4">
+              <p className="text-red-900 font-semibold mb-4">
+                ⚠️ Are you sure? This action cannot be undone. Your account and all associated data will be permanently deleted.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  id="confirm-delete-btn"
+                >
+                  {deleting ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Yes, Delete My Account
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteConfirm(false);
+                    setError("");
+                  }}
+                  disabled={deleting}
+                  className="flex-1 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-100 text-slate-800 font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer"
+                  id="cancel-delete-btn"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={handleDeleteAccount}
+              className="w-full bg-red-50 hover:bg-red-100 border border-red-300 text-red-700 font-semibold py-3 px-4 rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2"
+              id="delete-account-btn"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Account
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
