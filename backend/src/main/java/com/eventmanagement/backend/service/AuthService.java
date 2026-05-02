@@ -39,6 +39,8 @@ public class AuthService {
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+        user.setStudentId(request.getStudentId());
+        user.setDepartment(request.getDepartment());
         
         // Default to ATTENDEE if no role is provided
         user.setRole(request.getRole() != null ? request.getRole() : "ATTENDEE");
@@ -61,13 +63,15 @@ public class AuthService {
 
         user.setName(request.getName());
         user.setEmail(request.getEmail());
+        user.setStudentId(request.getStudentId());
+        user.setDepartment(request.getDepartment());
         User savedUser = userRepository.save(user);
         return buildAuthResponse(savedUser);
     }
 
     private AuthResponse buildAuthResponse(User user) {
         String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole());
-        return new AuthResponse(token, user.getId(), user.getName(), user.getEmail(), user.getRole());
+        return new AuthResponse(token, user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getStudentId(), user.getDepartment());
     }
 
     public void deleteUser(Long id) {

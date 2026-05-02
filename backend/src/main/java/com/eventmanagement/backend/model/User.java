@@ -33,6 +33,9 @@ public class User {
 
     private String role; // "ATTENDEE", "ORGANIZER", "ADMIN"
 
+    private String studentId;
+    private String department;
+
     private LocalDateTime createdAt;
 
     @PrePersist

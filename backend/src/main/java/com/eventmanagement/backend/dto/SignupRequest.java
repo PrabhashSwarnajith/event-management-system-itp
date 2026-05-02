@@ -13,8 +13,11 @@ public class SignupRequest {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Password is required")
     private String password;
 
     private String role; // Optional, defaults to ATTENDEE if not provided
+    
+    private String studentId;
+    
+    private String department;
 }
