@@ -1,6 +1,6 @@
 export const emptyForm = {
   title: "", description: "", venueId: "", category: "",
-  eventDate: "", bannerUrl: "", documentUrl: "", capacity: ""
+  eventDate: "", bannerUrl: "", documentUrl: "", capacity: "", status: "PUBLISHED"
 };
 
 export const toDateTimeLocalValue = (value) => (!value ? "" : value.slice(0, 16));
@@ -14,7 +14,7 @@ export const formatEventDate = (date) => {
 
 export const exportEventsToCSV = (events) => {
   if (!events.length) return;
-  const headers = ["ID", "Title", "Category", "Date", "Capacity", "Venue"];
+  const headers = ["ID", "Title", "Category", "Date", "Capacity", "Venue", "Status"];
   const csvRows = [headers.join(",")];
   
   events.forEach(event => {
@@ -24,7 +24,8 @@ export const exportEventsToCSV = (events) => {
       `"${event.category || ""}"`,
       event.eventDate,
       event.capacity,
-      `"${event.venue?.name || "No Venue"}"`
+      `"${event.venue?.name || "No Venue"}"`,
+      event.status || "PUBLISHED"
     ];
     csvRows.push(row.join(","));
   });

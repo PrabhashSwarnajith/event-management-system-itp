@@ -1,9 +1,9 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import EventFormCard from "../components/events/EventFormCard";
-import EventsList from "../components/events/EventsList";
-import { useManageEvents } from "../hooks/useManageEvents";
+import EventFormCard from "../../components/events/EventFormCard";
+import EventsList from "../../components/events/EventsList";
+import { useManageEvents } from "../../hooks/useManageEvents";
 
 const ManageEvents = () => {
   const { user, authFetch } = useAuth();

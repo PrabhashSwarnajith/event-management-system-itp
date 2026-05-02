@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import AccountLayout from "../components/account/AccountLayout";
+import { useAuth } from "../../context/AuthContext";
+import AccountLayout from "../../components/account/AccountLayout";
 import { CalendarIcon, TicketIcon, AlertCircle } from "lucide-react";
-import { TicketModal } from "../components/bookings/TicketModal";
-import { BookingCard } from "../components/bookings/BookingCard";
-import { BookingsTabBar } from "../components/bookings/BookingsTabBar";
-import { BookingsList } from "../components/bookings/BookingsList";
+import { TicketModal } from "../../components/bookings/TicketModal";
+import { BookingCard } from "../../components/bookings/BookingCard";
+import { BookingsTabBar } from "../../components/bookings/BookingsTabBar";
+import { BookingsList } from "../../components/bookings/BookingsList";
 
 const BookingsPage = () => {
   const { user, authFetch } = useAuth();

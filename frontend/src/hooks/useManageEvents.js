@@ -55,17 +55,21 @@ export const useManageEvents = (authFetch, user) => {
       : `${API}/events`;
 
     try {
-      await authFetch(url, {
+      const res = await authFetch(url, {
         method: editingId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Could not save event");
+      }
       setMessage(editingId ? "Event updated successfully!" : "Event published successfully!");
       setEditingId(null);
       setFormData(emptyForm);
       fetchMyEvents();
     } catch (err) {
-      setMessage("An error occurred. Please try again.");
+      setMessage(err.message || "An error occurred. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -84,6 +88,7 @@ export const useManageEvents = (authFetch, user) => {
       bannerUrl: event.bannerUrl || "",
       documentUrl: event.documentUrl || "",
       capacity: event.capacity?.toString() || "",
+      status: event.status || "PUBLISHED",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);

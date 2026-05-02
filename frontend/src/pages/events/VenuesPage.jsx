@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Search, SlidersHorizontal, X } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { VenueSkeleton, VenueCard } from "../components/venues/VenueCard";
+import { useAuth } from "../../context/AuthContext";
+import { VenueSkeleton, VenueCard } from "../../components/venues/VenueCard";
 
 const VenuesPage = () => {
   const { user } = useAuth();
@@ -70,7 +70,7 @@ const VenuesPage = () => {
         {user?.role === "ADMIN" && (
           <Link
             to="/dashboard"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Manage Venues
           </Link>

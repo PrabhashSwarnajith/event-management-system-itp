@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useProfileData } from "../hooks/useProfileData";
-import AccountLayout from "../components/account/AccountLayout";
-import { ProfileHeader } from "../components/profile/ProfileHeader";
-import { ProfileForm } from "../components/profile/ProfileForm";
-import { StatsCard } from "../components/profile/StatsCard";
-import { ReportPanel } from "../components/profile/ReportPanel";
-import { DeleteAccountSection } from "../components/profile/DeleteAccountSection";
+import { useProfileData } from "../../hooks/useProfileData";
+import AccountLayout from "../../components/account/AccountLayout";
+import { ProfileHeader } from "../../components/profile/ProfileHeader";
+import { ProfileForm } from "../../components/profile/ProfileForm";
+import { StatsCard } from "../../components/profile/StatsCard";
+import { ReportPanel } from "../../components/profile/ReportPanel";
+import { DeleteAccountSection } from "../../components/profile/DeleteAccountSection";
 import { User, Settings, Sparkles, LayoutDashboard, History } from "lucide-react";
 
 const ProfilePage = () => {

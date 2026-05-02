@@ -29,9 +29,13 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/health", "/h2-console/**").permitAll()
+                        // Public endpoints
+                        .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/google", "/api/health", "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/event/**").permitAll()
+                        .requestMatchers("/api/chatbot/**").permitAll()
+                        // Admin-only write operations
                         .requestMatchers(HttpMethod.POST, "/api/events/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ADMIN")
@@ -39,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/venues/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/venues/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // All other requests need authentication
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))

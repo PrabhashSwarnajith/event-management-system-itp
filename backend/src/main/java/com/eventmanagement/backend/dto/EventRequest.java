@@ -29,6 +29,8 @@ public class EventRequest {
     @NotNull(message = "Capacity must be set")
     private Integer capacity;
 
+    private String status;
+
     @NotNull(message = "Organizer ID is required")
     private Long organizerId;
 }

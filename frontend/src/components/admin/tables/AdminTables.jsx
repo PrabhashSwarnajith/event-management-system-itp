@@ -2,6 +2,12 @@ import { Edit2, Trash2 } from "lucide-react";
 import AdminTable, { AdminTd, AdminBadge } from "../AdminTable";
 import { formatDate } from "../../../utils/adminUtils";
 
+const eventStatusTone = (status) => {
+  if (status === "CANCELLED") return "red";
+  if (status === "DRAFT") return "blue";
+  return "green";
+};
+
 const RowActions = ({ onEdit, onDelete, readonly }) => (
   <div className="flex gap-2">
     <button
@@ -36,12 +42,15 @@ export const UsersOverviewTable = ({ rows }) => (
 );
 
 export const EventsOverviewTable = ({ rows }) => (
-  <AdminTable headers={["Title", "Venue", "Date"]}>
+  <AdminTable headers={["Title", "Venue", "Date", "Status"]}>
     {rows.map((row) => (
       <tr key={row.id}>
         <AdminTd strong>{row.title}</AdminTd>
         <AdminTd>{row.venue?.name || "-"}</AdminTd>
         <AdminTd>{formatDate(row.eventDate)}</AdminTd>
+        <AdminTd>
+          <AdminBadge tone={eventStatusTone(row.status)}>{row.status || "PUBLISHED"}</AdminBadge>
+        </AdminTd>
       </tr>
     ))}
   </AdminTable>
@@ -99,7 +108,7 @@ export const UsersTable = ({ rows, onEdit, onDelete, readonly }) => (
 );
 
 export const EventsTable = ({ rows, onEdit, onDelete, readonly }) => (
-  <AdminTable headers={["ID", "Title", "Category", "Venue", "Date", "Capacity", "Actions"]}>
+  <AdminTable headers={["ID", "Title", "Category", "Venue", "Date", "Capacity", "Status", "Actions"]}>
     {rows.map((row) => (
       <tr key={row.id}>
         <AdminTd>{row.id}</AdminTd>
@@ -108,6 +117,9 @@ export const EventsTable = ({ rows, onEdit, onDelete, readonly }) => (
         <AdminTd>{row.venue?.name || "-"}</AdminTd>
         <AdminTd>{formatDate(row.eventDate)}</AdminTd>
         <AdminTd>{row.capacity}</AdminTd>
+        <AdminTd>
+          <AdminBadge tone={eventStatusTone(row.status)}>{row.status || "PUBLISHED"}</AdminBadge>
+        </AdminTd>
         <AdminTd>
           <RowActions readonly={readonly} onEdit={() => onEdit(row)} onDelete={() => onDelete(row.id)} />
         </AdminTd>

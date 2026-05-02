@@ -13,6 +13,9 @@ const EventFormCard = ({
   const set = (key) => (e) => setFormData((f) => ({ ...f, [key]: e.target.value }));
   const inputClass = "input-field";
   const labelClass = "block text-sm font-semibold text-slate-700 mb-1.5";
+  const isErrorMessage = message && ["error", "failed", "could not", "already"].some((term) =>
+    message.toLowerCase().includes(term)
+  );
 
   return (
     <div className="card p-7 mb-8 animate-fade-up">
@@ -41,7 +44,7 @@ const EventFormCard = ({
       {message && (
         <div
           className={`flex items-center gap-3 p-4 rounded-xl text-sm font-semibold mb-6 animate-fade-in border ${
-            message.includes("error") || message.includes("failed")
+            isErrorMessage
               ? "bg-red-50 border-red-200 text-red-700"
               : "bg-emerald-50 border-emerald-200 text-emerald-700"
           }`}
@@ -127,6 +130,22 @@ const EventFormCard = ({
             value={formData.capacity}
             onChange={set("capacity")}
           />
+        </div>
+
+        {/* Status */}
+        <div>
+          <label htmlFor="event-status" className={labelClass}>Status *</label>
+          <select
+            id="event-status"
+            required
+            className={inputClass}
+            value={formData.status}
+            onChange={set("status")}
+          >
+            <option value="DRAFT">Draft</option>
+            <option value="PUBLISHED">Published</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
         </div>
 
         {/* Description */}

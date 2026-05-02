@@ -24,6 +24,17 @@
   --radius: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
+  color-scheme: light;
+}
+
+/* Dark mode variables */
+.dark {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --border: #334155;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  color-scheme: dark;
 }
 
 * {
@@ -43,6 +54,7 @@ body {
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Search, Filter, X, Calendar, SlidersHorizontal } from "lucide-react";
-import EventCard from "../components/EventCard";
+import EventCard from "../../components/events/EventCard";
 
 /**
  * SkeletonCard - Loading skeleton for event card
@@ -29,9 +29,9 @@ const EventsPage = () => {
   const fetchEvents = async (query = "") => {
     setLoading(true);
     try {
-      const url = query
-        ? `http://localhost:8080/api/events?search=${encodeURIComponent(query)}`
-        : `http://localhost:8080/api/events`;
+      const params = new URLSearchParams({ status: "PUBLISHED" });
+      if (query) params.set("search", query);
+      const url = `http://localhost:8080/api/events?${params.toString()}`;
       const response = await fetch(url);
       const data = await response.json();
       setEvents(Array.isArray(data) ? data : []);

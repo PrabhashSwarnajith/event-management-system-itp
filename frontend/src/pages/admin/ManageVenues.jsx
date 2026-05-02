@@ -1,7 +1,7 @@
 import { AlertCircle } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { useManageVenues } from "../hooks/useManageVenues";
-import { VenueForm, VenuesList } from "../components/manage/VenueComponents";
+import { useAuth } from "../../context/AuthContext";
+import { useManageVenues } from "../../hooks/useManageVenues";
+import { VenueForm, VenuesList } from "../../components/manage/VenueComponents";
 
 const ManageVenues = () => {
   const { user, authFetch } = useAuth();

@@ -26,7 +26,7 @@ export const ReportPanel = () => {
       if (!res.ok) throw new Error("Failed to fetch events data");
       const events = await res.json();
       
-      const headers = ["ID", "Title", "Category", "Date", "Capacity", "Venue Name"];
+      const headers = ["ID", "Title", "Category", "Date", "Capacity", "Venue Name", "Status"];
       const csvRows = [headers.join(",")];
       
       events.forEach(event => {
@@ -36,7 +36,8 @@ export const ReportPanel = () => {
           `"${event.category || ""}"`,
           event.eventDate,
           event.capacity,
-          `"${event.venue?.name || "No Venue"}"`
+          `"${event.venue?.name || "No Venue"}"`,
+          event.status || "PUBLISHED"
         ];
         csvRows.push(row.join(","));
       });

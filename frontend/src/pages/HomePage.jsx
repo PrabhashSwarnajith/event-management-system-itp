@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, Ticket, MapPin, Shield, Star, Users, ArrowRight } from "lucide-react";
-import EventCard from "../components/EventCard";
+import EventCard from "../components/events/EventCard";
 import { HeroSection } from "../components/home/HeroSection";
 import { FeatureCard } from "../components/home/FeatureCard";
 import { EventSkeleton } from "../components/home/EventSkeleton";
@@ -13,7 +13,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/events");
+        const res = await fetch("http://localhost:8080/api/events?status=PUBLISHED");
         const data = await res.json();
         const sorted = data
           .filter((e) => new Date(e.eventDate) >= new Date())

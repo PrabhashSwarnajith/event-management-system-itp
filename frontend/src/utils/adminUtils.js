@@ -22,7 +22,7 @@ export const parseError = async (res, fallback) => {
 // Empty form states
 export const emptyForms = {
   user: { name: "", email: "", password: "", role: "ATTENDEE" },
-  event: { title: "", description: "", venueId: "", category: "", eventDate: "", bannerUrl: "", documentUrl: "", capacity: "" },
+  event: { title: "", description: "", venueId: "", category: "", eventDate: "", bannerUrl: "", documentUrl: "", capacity: "", status: "PUBLISHED" },
   venue: { name: "", location: "", capacity: "", description: "", amenities: "", imageUrl: "", available: true },
   booking: { userId: "", eventId: "", ticketCount: "1" }
 };
@@ -40,6 +40,7 @@ export const validateEvent = (form) => {
   if (!form.venueId) return "Venue is required";
   if (!form.eventDate) return "Date and time are required";
   if (!form.capacity || Number(form.capacity) < 1) return "Capacity must be at least 1";
+  if (!form.status) return "Status is required";
   if (!form.description.trim()) return "Description is required";
   return null;
 };
@@ -87,7 +88,7 @@ export const exportUsersCSV = (users) => {
 };
 
 export const exportEventsCSV = (events) => {
-  const headers = ["ID", "Title", "Category", "Date", "Capacity", "Venue Name"];
+  const headers = ["ID", "Title", "Category", "Date", "Capacity", "Venue Name", "Status"];
   const rows = [headers.join(",")];
   events.forEach((e) => {
     rows.push([
@@ -96,7 +97,8 @@ export const exportEventsCSV = (events) => {
       `"${e.category || ""}"`, 
       e.eventDate, 
       e.capacity, 
-      `"${e.venue?.name || "No Venue"}"`
+      `"${e.venue?.name || "No Venue"}"`,
+      e.status || "PUBLISHED"
     ].join(","));
   });
   downloadCSV("admin_events_report.csv", rows);

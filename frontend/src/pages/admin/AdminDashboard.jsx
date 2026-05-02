@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { AlertCircle, Building2, Calendar, CheckCircle, Home, LayoutDashboard, LogOut, RefreshCw, Ticket, Users, X, FileText } from "lucide-react";
-import { OverviewSection } from "../components/admin/sections/OverviewSection";
-import { UsersSection } from "../components/admin/sections/UsersSection";
-import { EventsSection } from "../components/admin/sections/EventsSection";
-import { VenuesSection } from "../components/admin/sections/VenuesSection";
-import { BookingsSection } from "../components/admin/sections/BookingsSection";
-import { ReportsSection } from "../components/admin/sections/ReportsSection";
-import { useAdminData, useUserOperations, useEventOperations, useVenueOperations, useBookingOperations } from "../hooks/useAdminData";
-import { emptyForms, toDateTimeLocal } from "../utils/adminUtils";
+import { useAuth } from "../../context/AuthContext";
+import { AlertCircle, Building2, Calendar, CheckCircle, Home, LayoutDashboard, LogOut, RefreshCw, Ticket, Users, X, FileText, MessageCircle } from "lucide-react";
+import LiveChatPanel from "../../components/admin/LiveChatPanel";
+import { OverviewSection } from "../../components/admin/sections/OverviewSection";
+import { UsersSection } from "../../components/admin/sections/UsersSection";
+import { EventsSection } from "../../components/admin/sections/EventsSection";
+import { VenuesSection } from "../../components/admin/sections/VenuesSection";
+import { BookingsSection } from "../../components/admin/sections/BookingsSection";
+import { ReportsSection } from "../../components/admin/sections/ReportsSection";
+import { useAdminData, useUserOperations, useEventOperations, useVenueOperations, useBookingOperations } from "../../hooks/useAdminData";
+import { emptyForms, toDateTimeLocal } from "../../utils/adminUtils";
 
 const AdminDashboard = () => {
   const { user, authFetch, logout } = useAuth();
@@ -116,7 +117,8 @@ const AdminDashboard = () => {
       eventDate: toDateTimeLocal(row.eventDate),
       bannerUrl: row.bannerUrl || "",
       documentUrl: row.documentUrl || "",
-      capacity: row.capacity?.toString() || ""
+      capacity: row.capacity?.toString() || "",
+      status: row.status || "PUBLISHED"
     });
     setModal("events");
   };
@@ -191,7 +193,9 @@ const AdminDashboard = () => {
     { id: "users", label: "Users", icon: Users },
     { id: "events", label: "Events", icon: Calendar },
     { id: "venues", label: "Venues", icon: Building2 },
-    { id: "bookings", label: "Bookings", icon: Ticket }
+    { id: "bookings", label: "Bookings", icon: Ticket },
+    { id: "reports", label: "Reports", icon: FileText },
+    { id: "livechat", label: "Live Support", icon: MessageCircle, badge: true },
   ];
 
   return (
@@ -210,7 +214,7 @@ const AdminDashboard = () => {
           </div>
 
           <nav className="space-y-1 py-4" aria-label="Admin sections">
-            {sections.map(({ id, label, icon: Icon }) => (
+            {sections.map(({ id, label, icon: Icon, badge }) => (
               <button
                 key={id}
                 onClick={() => setActive(id)}
@@ -220,6 +224,9 @@ const AdminDashboard = () => {
               >
                 <Icon className="h-4 w-4" />
                 {label}
+                {badge && (
+                  <span className="ml-auto w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                )}
               </button>
             ))}
           </nav>
@@ -386,6 +393,24 @@ const AdminDashboard = () => {
                   error={error}
                   setError={setError}
                 />
+              )}
+              {active === "reports" && (
+                <ReportsSection
+                  users={adminData.users}
+                  events={adminData.events}
+                  venues={adminData.venues}
+                  bookings={adminData.bookings}
+                />
+              )}
+
+              {active === "livechat" && (
+                <div>
+                  <div className="mb-6">
+                    <h2 className="text-xl font-black text-slate-900">Live Support Chat</h2>
+                    <p className="text-sm text-slate-500 mt-1">Monitor and reply to student support messages in real-time.</p>
+                  </div>
+                  <LiveChatPanel adminName={user.name || "Admin"} />
+                </div>
               )}
             </>
           )}

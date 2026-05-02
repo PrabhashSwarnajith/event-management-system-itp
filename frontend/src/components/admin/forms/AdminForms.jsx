@@ -113,6 +113,17 @@ export const EventForm = ({ form, setForm, venues, onSubmit, submitting, editing
         required
       />
     </Field>
+    <Field label="Status">
+      <select
+        className={inputClass}
+        value={form.status}
+        onChange={(e) => setForm({ ...form, status: e.target.value })}
+      >
+        <option value="DRAFT">Draft</option>
+        <option value="PUBLISHED">Published</option>
+        <option value="CANCELLED">Cancelled</option>
+      </select>
+    </Field>
     <Field label="Banner URL">
       <input
         type="url"

@@ -13,6 +13,7 @@ export const BookingPanel = ({
   isBooking,
   onTicketCountChange,
   onBook,
+  totalAmount,
 }) => {
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 md:p-8">
@@ -75,7 +76,7 @@ export const BookingPanel = ({
                 aria-busy={isBooking}
               >
                 <TicketIcon className="w-4 h-4" />
-                {isBooking ? "Booking..." : "Book Now"}
+                {isBooking ? "Processing..." : totalAmount ? `Pay LKR ${totalAmount.toLocaleString()} →` : "Book Now"}
               </button>
             ) : (
               <Link

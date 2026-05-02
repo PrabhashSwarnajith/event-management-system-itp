@@ -47,6 +47,10 @@ public class Event {
     @NotNull(message = "Capacity must be set")
     private Integer capacity;
 
+    // DRAFT, PUBLISHED, CANCELLED
+    @Column(nullable = false)
+    private String status = "PUBLISHED";
+
     private Long organizerId;
 
     private LocalDateTime createdAt;
@@ -54,5 +58,8 @@ public class Event {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
+        if (this.status == null || this.status.isBlank()) {
+            this.status = "PUBLISHED";
+        }
     }
 }

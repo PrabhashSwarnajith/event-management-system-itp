@@ -27,14 +27,9 @@ public class EventController {
     @GetMapping
     public ResponseEntity<List<Event>> getAllEvents(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) Long organizerId) {
-        if (organizerId != null) {
-            return ResponseEntity.ok(eventService.getEventsByOrganizer(organizerId));
-        }
-        if (search != null && !search.isEmpty()) {
-            return ResponseEntity.ok(eventService.searchEvents(search));
-        }
-        return ResponseEntity.ok(eventService.getAllEvents());
+            @RequestParam(required = false) Long organizerId,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(eventService.getEvents(search, organizerId, status));
     }
 
     @GetMapping("/{id}")

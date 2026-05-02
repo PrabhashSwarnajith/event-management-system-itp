@@ -2,11 +2,17 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   CalendarIcon, MapPinIcon, UsersIcon, ArrowLeftIcon,
-  ExternalLinkIcon, Clock, Share2, AlertCircle
+  ExternalLinkIcon, Clock, Share2, AlertCircle, CheckCircle,
+  QrCode, Ticket
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { LoadingSkeleton, MetaPill } from "../components/events/EventDetailsComponents";
-import { BookingPanel } from "../components/events/BookingPanel";
+import { useAuth } from "../../context/AuthContext";
+import { LoadingSkeleton, MetaPill } from "../../components/events/EventDetailsComponents";
+import { BookingPanel } from "../../components/events/BookingPanel";
+import EventReviews from "../../components/events/EventReviews";
+import PaymentModal from "../../components/ui/PaymentModal";
+import QRCode from "react-qr-code";
+
+const TICKET_PRICE_PER_SEAT = 250; // LKR
 
 const EventDetailsPage = () => {
   const { id } = useParams();
@@ -16,8 +22,16 @@ const EventDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [ticketCount, setTicketCount] = useState(1);
-  const [bookingStatus, setBookingStatus] = useState("");
+  const [bookingStatus, setBookingStatus] = useState(""); // "" | "success" | error string
   const [isBooking, setIsBooking] = useState(false);
+
+  // Payment gateway
+  const [showPayment, setShowPayment] = useState(false);
+  const [pendingBooking, setPendingBooking] = useState(null);
+
+  // QR ticket after booking
+  const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -34,24 +48,44 @@ const EventDetailsPage = () => {
     fetchEvent();
   }, [id]);
 
+  // Step 1: Click "Book Now" → open payment modal
   const handleBookTicket = async () => {
     if (!user) {
       alert("Please log in to book tickets.");
       return;
     }
+    setShowPayment(true);
+    setPendingBooking({ ticketCount: parseInt(ticketCount), eventTitle: event.title });
+  };
+
+  // Step 2: Payment success → create booking → show QR
+  const handlePaymentSuccess = async (paymentData) => {
+    setShowPayment(false);
     setIsBooking(true);
     setBookingStatus("");
+
     try {
       const res = await authFetch("http://localhost:8080/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventId: event.id, ticketCount: parseInt(ticketCount) }),
       });
+
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to book tickets");
+        throw new Error(errData.message || "Failed to confirm booking");
       }
+
+      const booking = await res.json();
+      setConfirmedBooking({
+        ...booking,
+        transactionId: paymentData.transactionId,
+        eventTitle: event.title,
+        venueName: event.venue?.name,
+        eventDate: event.eventDate,
+      });
       setBookingStatus("success");
+      setShowQR(true);
     } catch (err) {
       setBookingStatus(err.message);
     } finally {
@@ -94,6 +128,18 @@ const EventDetailsPage = () => {
     hour: "2-digit", minute: "2-digit",
   });
   const isPast = eventDateObj < new Date();
+  const totalAmount = ticketCount * TICKET_PRICE_PER_SEAT;
+
+  // QR ticket content
+  const qrData = confirmedBooking
+    ? JSON.stringify({
+        bookingId: confirmedBooking.id,
+        event: confirmedBooking.eventTitle,
+        attendee: user?.name,
+        tickets: confirmedBooking.ticketCount,
+        txn: confirmedBooking.transactionId,
+      })
+    : "";
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 animate-fade-in">
@@ -110,26 +156,16 @@ const EventDetailsPage = () => {
       <div className="card overflow-hidden mb-8">
         {/* Banner */}
         <div className="relative aspect-[16/7] overflow-hidden bg-slate-100">
-          <img
-            src={bannerImg}
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
+          <img src={bannerImg} alt={event.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-          {/* Floating badges */}
           <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
             {event.category && (
-              <span className="badge badge-indigo shadow-md">
-                {event.category}
-              </span>
+              <span className="badge badge-indigo shadow-md">{event.category}</span>
             )}
-            {isPast && (
-              <span className="badge badge-red shadow-md">Past Event</span>
-            )}
+            {isPast && <span className="badge badge-red shadow-md">Past Event</span>}
           </div>
 
-          {/* Share button */}
           <button
             onClick={handleShare}
             className="absolute top-4 left-4 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-700 hover:bg-white transition shadow-md cursor-pointer"
@@ -175,6 +211,17 @@ const EventDetailsPage = () => {
             </p>
           </div>
 
+          {/* Ticket price info */}
+          {!isPast && (
+            <div className="mb-6 bg-indigo-50 rounded-xl px-4 py-3 border border-indigo-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-700">
+                <Ticket className="w-4 h-4" />
+                <span className="text-sm font-semibold">Ticket Price</span>
+              </div>
+              <span className="font-black text-indigo-700">LKR {TICKET_PRICE_PER_SEAT.toLocaleString()} / person</span>
+            </div>
+          )}
+
           {/* Document link */}
           {event.documentUrl && (
             <div className="mb-8">
@@ -190,19 +237,72 @@ const EventDetailsPage = () => {
             </div>
           )}
 
+          {/* QR Ticket (post-booking) */}
+          {showQR && confirmedBooking && (
+            <div className="mb-8 bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-black text-emerald-800 text-lg">Booking Confirmed!</h3>
+              </div>
+              <p className="text-emerald-700 text-sm mb-5">
+                Show this QR code at the event entrance. Your ticket is also saved in My Bookings.
+              </p>
+              <div className="flex justify-center mb-4">
+                <div className="bg-white p-4 rounded-2xl border-2 border-emerald-200 shadow-md inline-block">
+                  <QRCode value={qrData} size={160} />
+                </div>
+              </div>
+              <div className="text-xs text-emerald-600 space-y-1">
+                <p><strong>Booking ID:</strong> #{confirmedBooking.id}</p>
+                <p><strong>Transaction:</strong> {confirmedBooking.transactionId}</p>
+                <p><strong>Tickets:</strong> {confirmedBooking.ticketCount}</p>
+              </div>
+              <div className="mt-4 flex justify-center gap-3">
+                <Link to="/bookings" className="btn-primary text-sm cursor-pointer">
+                  <QrCode className="w-4 h-4" /> My Bookings
+                </Link>
+                <button
+                  onClick={() => setShowQR(false)}
+                  className="btn-ghost text-sm cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Booking panel */}
-          <BookingPanel
-            user={user}
-            isPast={isPast}
-            event={event}
-            bookingStatus={bookingStatus}
-            ticketCount={ticketCount}
-            isBooking={isBooking}
-            onTicketCountChange={setTicketCount}
-            onBook={handleBookTicket}
-          />
+          {!showQR && (
+            <BookingPanel
+              user={user}
+              isPast={isPast}
+              event={event}
+              bookingStatus={bookingStatus}
+              ticketCount={ticketCount}
+              isBooking={isBooking}
+              onTicketCountChange={setTicketCount}
+              onBook={handleBookTicket}
+              totalAmount={totalAmount}
+            />
+          )}
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <div className="card p-7 md:p-10">
+        <EventReviews eventId={id} />
+      </div>
+
+      {/* Payment Modal */}
+      {showPayment && (
+        <PaymentModal
+          booking={pendingBooking}
+          amount={totalAmount}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowPayment(false)}
+          authFetch={authFetch}
+        />
+      )}
     </div>
   );
 };
