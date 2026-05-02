@@ -1,35 +1,33 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageSquare, X, Send, Clock, ChevronDown, Shield, Headphones } from "lucide-react";
+import { MessageSquare, X, Send, Clock, ChevronDown, Shield, Headphones, Users } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-
-/**
- * LiveChat — Real-time student support chat widget.
- * Member 3 (Dilhani) feature: Live support with admin reply capability.
- *
- * Architecture:
- *  - Messages stored in localStorage under STORAGE_KEY
- *  - Admin LiveChatPanel (in AdminDashboard) reads/writes the same key
- *  - Both poll every 2s for new messages → simulates real-time
- */
 
 export const LIVE_CHAT_STORAGE_KEY = "unievents_livechat_v2";
 
-const SUPPORT_AGENT = { name: "Support Team", avatar: "S" };
+const SUPPORT_AGENT = { name: "Campus Help Desk", avatar: "C" };
+
+const SUPPORT_MEMBERS = [
+  { name: "Prabhash Swarnajith", area: "Accounts" },
+  { name: "Shehani03", area: "Questions" },
+  { name: "it23677296-ayesha", area: "Events" },
+  { name: "IT21012624", area: "Bookings" },
+  { name: "PrabhashSwarnajith", area: "Venues" },
+];
 
 const AUTO_REPLIES = {
   keywords: {
-    booking: "For booking issues, please share your **Booking ID** and we'll look into it right away. You can also check **My Bookings** in your profile.",
-    venue: "For venue inquiries, visit our **Venues page** for availability and details. You can also email venues@unievents.lk.",
-    cancel: "To cancel a booking: go to **My Bookings** → click **Cancel**. Refunds are processed within **3-5 business days**.",
-    payment: "For payment issues, please share your **transaction ID** and we'll resolve it within 24 hours. Email: payments@unievents.lk",
-    event: "Check our **Events page** for the latest schedule. Need help registering? I'm happy to assist!",
-    refund: "Refunds take **3-5 business days** after cancellation. The amount returns to your original payment method.",
-    ticket: "Your QR ticket is available in **My Bookings** after a successful payment. Download it from there!",
+    booking: "For booking issues, please share your booking ID. You can also check My Bookings from your profile.",
+    venue: "For venue inquiries, open the Venues page and check capacity, location, and availability.",
+    cancel: "To cancel a booking, go to My Bookings and select Cancel. Refunds usually take 3-5 business days.",
+    payment: "For payment issues, please share your transaction reference so the team can check it.",
+    event: "You can find the latest event schedule from the Events page. Tell us the event name if you need help.",
+    refund: "Refunds are processed after cancellation and return to the original payment method.",
+    ticket: "Your QR ticket is shown in My Bookings after the booking is confirmed.",
   },
   default: [
-    "Thanks for reaching out! A member of our team will respond shortly. ⏱️",
-    "Hi! We've received your message. Our support team will reply within 5 minutes.",
-    "Hello! Thank you for contacting UniEvents support. Someone will be with you soon.",
+    "Thanks for the message. One of our team members will check this shortly.",
+    "Hi, we got your question. Please keep this chat open for the reply.",
+    "Thanks for contacting UniEvents support. We will help you with this.",
   ],
 };
 
@@ -41,12 +39,13 @@ const getAutoReply = (text) => {
   return AUTO_REPLIES.default[Math.floor(Math.random() * AUTO_REPLIES.default.length)];
 };
 
-// ── Shared storage helpers ─────────────────────────────────────────────────────
 export const readChatStore = () => {
   try {
     const raw = localStorage.getItem(LIVE_CHAT_STORAGE_KEY);
     return raw ? JSON.parse(raw) : { messages: [], session: null };
-  } catch { return { messages: [], session: null }; }
+  } catch {
+    return { messages: [], session: null };
+  }
 };
 
 export const writeChatStore = (data) => {
@@ -66,34 +65,39 @@ const LiveChat = () => {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const lastAdminMsgCount = useRef(0);
+  const lastAgentMsgCount = useRef(0);
 
-  // Load messages from storage on mount
   useEffect(() => {
     const store = readChatStore();
     if (store.messages) {
       setMessages(store.messages);
-      lastAdminMsgCount.current = store.messages.filter(m => m.role === "agent").length;
+      lastAgentMsgCount.current = store.messages.filter((m) => m.role === "agent").length;
     }
   }, []);
 
-  // Poll for admin replies every 2 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       const store = readChatStore();
       if (!store.messages) return;
-      const adminMsgs = store.messages.filter(m => m.role === "agent");
-      if (adminMsgs.length > lastAdminMsgCount.current) {
+
+      const agentMsgs = store.messages.filter((m) => m.role === "agent");
+      const previousCount = lastAgentMsgCount.current;
+
+      if (agentMsgs.length > previousCount) {
         setMessages(store.messages);
-        lastAdminMsgCount.current = adminMsgs.length;
-        if (!open) setUnread(u => u + (adminMsgs.length - lastAdminMsgCount.current + 1));
+        lastAgentMsgCount.current = agentMsgs.length;
+        if (!open) setUnread((count) => count + (agentMsgs.length - previousCount));
       }
     }, 2000);
+
     return () => clearInterval(interval);
   }, [open]);
 
   useEffect(() => {
-    if (open) { setUnread(0); setTimeout(() => inputRef.current?.focus(), 100); }
+    if (open) {
+      setUnread(0);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
   }, [open]);
 
   useEffect(() => {
@@ -118,29 +122,25 @@ const LiveChat = () => {
     setMessages(newMessages);
     setInput("");
 
-    // Write to shared storage immediately
     const store = readChatStore();
     writeChatStore({ ...store, messages: newMessages.slice(-100), sessionId });
 
-    // Simulate auto-reply if no admin online
     setAgentTyping(true);
-    const delay = 1500 + Math.random() * 1500;
-    await new Promise((r) => setTimeout(r, delay));
+    const delay = 1200 + Math.random() * 1200;
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
-    // Check if admin replied in the meantime
     const currentStore = readChatStore();
-    const adminReplied = currentStore.messages.some(
-      m => m.role === "agent" && m.timestamp > userMsg.timestamp
+    const teamReplied = currentStore.messages.some(
+      (m) => m.role === "agent" && m.timestamp > userMsg.timestamp
     );
 
     setAgentTyping(false);
 
-    if (!adminReplied) {
-      const autoReplyText = getAutoReply(text);
+    if (!teamReplied) {
       const agentMsg = {
         id: `agent_${Date.now()}`,
         role: "agent",
-        text: autoReplyText,
+        text: getAutoReply(text),
         agent: SUPPORT_AGENT.name,
         time: new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
         timestamp: Date.now(),
@@ -148,18 +148,23 @@ const LiveChat = () => {
       };
       const updated = [...newMessages, agentMsg];
       setMessages(updated);
-      writeChatStore({ ...currentStore, messages: updated.slice(-100) });
-      if (!open) setUnread(u => u + 1);
+      lastAgentMsgCount.current += 1;
+      writeChatStore({ ...currentStore, messages: updated.slice(-100), sessionId });
+      if (!open) setUnread((count) => count + 1);
     }
   };
 
   const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   };
 
   const clearChat = () => {
     setMessages([]);
     setUnread(0);
+    lastAgentMsgCount.current = 0;
     writeChatStore({ messages: [], session: null });
   };
 
@@ -170,24 +175,22 @@ const LiveChat = () => {
 
   return (
     <>
-      {/* Trigger */}
       <button
-        onClick={() => { setOpen(true); setUnread(0); }}
-        className={`fixed z-40 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl font-bold text-sm text-white transition-all duration-300 ${
-          open ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"
-        }`}
-        style={{
-          background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
-          bottom: "5rem",
-          right: "1.5rem",
+        onClick={() => {
+          setOpen(true);
+          setUnread(0);
         }}
+        className={`fixed z-40 flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-bold text-white shadow-2xl transition-all duration-300 ${
+          open ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
+        }`}
+        style={{ background: "linear-gradient(135deg, #0ea5e9, #2563eb)", bottom: "5rem", right: "1.5rem" }}
         aria-label="Open live chat"
         id="livechat-trigger-btn"
       >
         <div className="relative">
-          <Headphones className="w-5 h-5" />
+          <Headphones className="h-5 w-5" />
           {unread > 0 && (
-            <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-black animate-pulse">
+            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-black">
               {unread}
             </span>
           )}
@@ -195,170 +198,188 @@ const LiveChat = () => {
         Live Support
       </button>
 
-      {/* Chat Window */}
       <div
-        className={`fixed z-40 flex flex-col rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transition-all duration-300 origin-bottom-right bg-white ${
-          open ? "scale-100 opacity-100" : "scale-75 opacity-0 pointer-events-none"
+        className={`fixed z-40 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl transition-all duration-300 ${
+          open ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
         }`}
         style={{
-          width: 340,
-          height: minimized ? 64 : 500,
-          right: 400, // Offset from AI chatbot
-          bottom: 24,
+          width: "min(760px, calc(100vw - 2rem))",
+          height: minimized ? 64 : "min(560px, calc(100vh - 2rem))",
+          right: "1rem",
+          bottom: "1rem",
         }}
       >
-        {/* Header */}
-        <div
-          className="flex items-center justify-between px-4 py-3 text-white flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <div className="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center">
-                <Shield className="w-4 h-4 text-white" />
+        <div className="flex h-full flex-col">
+          <div className="flex shrink-0 items-center justify-between bg-slate-900 px-4 py-3 text-white">
+            <div className="flex items-center gap-2.5">
+              <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                <Shield className="h-4 w-4" />
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-slate-900 bg-emerald-400" />
               </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-white" />
-            </div>
-            <div>
-              <p className="font-black text-sm">UniEvents Support</p>
-              <p className="text-xs text-white/80 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                Live · Admin monitoring
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setMinimized((m) => !m)}
-              className="p-1.5 rounded-lg hover:bg-white/20 transition cursor-pointer"
-              aria-label="Minimize"
-            >
-              <ChevronDown className={`w-4 h-4 transition-transform ${minimized ? "rotate-180" : ""}`} />
-            </button>
-            <button
-              onClick={() => { setOpen(false); setMinimized(false); }}
-              className="p-1.5 rounded-lg hover:bg-white/20 transition cursor-pointer"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {!minimized && (
-          <>
-            {/* Welcome */}
-            {messages.length === 0 && (
-              <div className="bg-blue-50 border-b border-blue-100 px-4 py-3">
-                <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5">
-                  <Headphones className="w-3.5 h-3.5" />
-                  Welcome to UniEvents Live Support!
-                </p>
-                <p className="text-xs text-blue-600 mt-0.5">
-                  Type your question — our team or AI will respond shortly.
+              <div>
+                <p className="text-sm font-black">UniEvents Support</p>
+                <p className="flex items-center gap-1 text-xs text-white/75">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  Student help team online
                 </p>
               </div>
-            )}
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setMinimized((value) => !value)}
+                className="rounded-lg p-1.5 transition hover:bg-white/10"
+                aria-label="Minimize live chat"
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${minimized ? "rotate-180" : ""}`} />
+              </button>
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  setMinimized(false);
+                }}
+                className="rounded-lg p-1.5 transition hover:bg-white/10"
+                aria-label="Close live chat"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gradient-to-b from-slate-50 to-white">
-              {messages.length === 0 && (
-                <div className="text-center py-8 text-slate-400">
-                  <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">Send a message to start chatting</p>
-                </div>
-              )}
-
-              {messages.map((msg) => (
-                <div key={msg.id} className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                  <div
-                    className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-black ${
-                      msg.role === "agent" ? "bg-blue-100 text-blue-700" : "bg-indigo-100 text-indigo-700"
-                    }`}
-                  >
-                    {msg.role === "agent" ? "S" : (msg.sender?.charAt(0).toUpperCase() || "U")}
+          {!minimized && (
+            <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[230px_minmax(0,1fr)]">
+              {user?.role === "ADMIN" && (
+                <aside className="border-b border-slate-200 bg-slate-50 p-4 md:border-b-0 md:border-r">
+                  <div className="mb-4 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-sm font-black text-slate-900">Support members</h3>
                   </div>
-                  <div className="max-w-[78%]">
-                    <p className={`text-[10px] mb-1 font-bold ${msg.role === "user" ? "text-right text-slate-400" : "text-left text-slate-400"}`}>
-                      {msg.role === "user" ? msg.sender : msg.agent}
-                      {msg.isAuto && (
-                        <span className="ml-1 text-[8px] bg-slate-100 px-1 rounded text-slate-400 uppercase tracking-tighter">auto</span>
-                      )}
-                    </p>
-                    <div
-                      className={`px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                        msg.role === "user"
-                          ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-tr-sm shadow-sm"
-                          : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm shadow-sm"
-                      }`}
-                      dangerouslySetInnerHTML={
-                        msg.role === "agent" ? { __html: formatMarkdown(msg.text) } : undefined
-                      }
-                    >
-                      {msg.role === "user" ? msg.text : undefined}
-                    </div>
-                    <div className="flex items-center gap-1 mt-1">
-                      <Clock className="w-3 h-3 text-slate-300" />
-                      <p className="text-xs text-slate-400">{msg.time}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {/* Agent typing */}
-              {agentTyping && (
-                <div className="flex gap-2">
-                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-black text-blue-700 flex-shrink-0">S</div>
-                  <div className="bg-white border border-slate-200 px-3 py-2.5 rounded-2xl rounded-tl-sm shadow-sm flex gap-1 items-center">
-                    {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
-                        style={{ animationDelay: `${i * 0.15}s` }}
-                      />
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-1">
+                    {SUPPORT_MEMBERS.map((member) => (
+                      <div key={member.name} className="rounded-lg border border-slate-200 bg-white p-3">
+                        <p className="truncate text-sm font-bold text-slate-900">{member.name}</p>
+                        <p className="text-xs text-slate-500">{member.area}</p>
+                      </div>
                     ))}
                   </div>
-                </div>
+                  <p className="mt-4 text-xs leading-relaxed text-slate-500">
+                    Share your booking ID, event name, or question. The correct member can pick it up from here.
+                  </p>
+                </aside>
               )}
-              <div ref={messagesEndRef} />
-            </div>
 
-            {/* Input */}
-            <div className="p-3 border-t border-slate-200 bg-white">
-              <div className="flex gap-2">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKey}
-                  placeholder="Type your message..."
-                  className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition bg-slate-50"
-                  id="livechat-input"
-                  maxLength={300}
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={!input.trim()}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white transition cursor-pointer disabled:opacity-40 flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}
-                  id="livechat-send-btn"
-                  aria-label="Send message"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-              {messages.length > 0 && (
-                <button
-                  onClick={clearChat}
-                  className="text-xs text-slate-400 hover:text-slate-600 mt-2 cursor-pointer transition"
-                >
-                  Clear conversation
-                </button>
-              )}
+              <section className="flex min-h-0 flex-col">
+                {messages.length === 0 && (
+                  <div className="border-b border-blue-100 bg-blue-50 px-4 py-3">
+                    <p className="flex items-center gap-1.5 text-xs font-bold text-blue-800">
+                      <Headphones className="h-3.5 w-3.5" />
+                      Welcome to UniEvents live support
+                    </p>
+                    <p className="mt-0.5 text-xs text-blue-600">
+                      Send your question and a team member will reply as soon as possible.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex-1 space-y-3 overflow-y-auto bg-white p-3">
+                  {messages.length === 0 && (
+                    <div className="py-8 text-center text-slate-400">
+                      <MessageSquare className="mx-auto mb-2 h-8 w-8 opacity-40" />
+                      <p className="text-sm">Start with a short message.</p>
+                    </div>
+                  )}
+
+                  {messages.map((msg) => (
+                    <div key={msg.id} className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                      {user?.role === "ADMIN" && (
+                        <div
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-black ${
+                            msg.role === "agent" ? "bg-blue-100 text-blue-700" : "bg-indigo-100 text-indigo-700"
+                          }`}
+                        >
+                          {msg.role === "agent" ? "S" : (msg.sender?.charAt(0).toUpperCase() || "U")}
+                        </div>
+                      )}
+                      <div className="max-w-[82%]">
+                        {user?.role === "ADMIN" && (
+                          <p className={`mb-1 text-[10px] font-bold text-slate-400 ${msg.role === "user" ? "text-right" : "text-left"}`}>
+                            {msg.role === "user" ? msg.sender : msg.agent}
+                          </p>
+                        )}
+                        <div
+                          className={`rounded-lg px-3 py-2 text-sm leading-relaxed ${
+                            msg.role === "user"
+                              ? "bg-blue-600 text-white"
+                              : "border border-slate-200 bg-slate-50 text-slate-800"
+                          }`}
+                          dangerouslySetInnerHTML={msg.role === "agent" ? { __html: formatMarkdown(msg.text) } : undefined}
+                        >
+                          {msg.role === "user" ? msg.text : undefined}
+                        </div>
+                        {user?.role === "ADMIN" && (
+                          <div className="mt-1 flex items-center gap-1">
+                            <Clock className="h-3 w-3 text-slate-300" />
+                            <p className="text-xs text-slate-400">{msg.time}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {agentTyping && (
+                    <div className="flex gap-2">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-black text-blue-700">
+                        S
+                      </div>
+                      <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+                        {[0, 1, 2].map((i) => (
+                          <span
+                            key={i}
+                            className="h-2 w-2 animate-bounce rounded-full bg-blue-400"
+                            style={{ animationDelay: `${i * 0.15}s` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                <div className="border-t border-slate-200 bg-white p-3">
+                  <div className="flex gap-2">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKey}
+                      placeholder="Type your message..."
+                      className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                      id="livechat-input"
+                      maxLength={300}
+                    />
+                    <button
+                      onClick={sendMessage}
+                      disabled={!input.trim()}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700 disabled:opacity-40"
+                      id="livechat-send-btn"
+                      aria-label="Send message"
+                    >
+                      <Send className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {messages.length > 0 && (
+                    <button
+                      onClick={clearChat}
+                      className="mt-2 text-xs text-slate-400 transition hover:text-slate-600"
+                    >
+                      Clear conversation
+                    </button>
+                  )}
+                </div>
+              </section>
             </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </>
   );
