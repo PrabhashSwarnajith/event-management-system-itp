@@ -1,96 +1,59 @@
-import { CalendarIcon, MapPinIcon, UsersIcon, ArrowRight, Tag } from "lucide-react";
+import { CalendarIcon, MapPinIcon, UsersIcon, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-// Category colour map
-const CATEGORY_COLORS = {
-  Music:       "badge-indigo",
-  Sports:      "badge-green",
-  Academic:    "badge-amber",
-  Workshop:    "badge-slate",
-  Cultural:    "badge-indigo",
-  Tech:        "badge-indigo",
-  Arts:        "badge-amber",
-  Health:      "badge-green",
-};
-
-const getCategoryBadge = (cat) => CATEGORY_COLORS[cat] || "badge-slate";
-
 const EventCard = ({ event }) => {
-  const bannerImg =
-    event.bannerUrl ||
-    "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80";
-
-  const formattedDate = new Date(event.eventDate).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-  const formattedTime = new Date(event.eventDate).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const bannerImg = event.bannerUrl || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80";
 
   return (
-    <article className="group card card-hover overflow-hidden flex flex-col animate-fade-up">
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 flex flex-col mb-4">
       {/* Image */}
-      <div className="relative aspect-video overflow-hidden bg-slate-100">
+      <div className="w-full h-48 bg-gray-100 rounded mb-4 overflow-hidden relative">
         <img
           src={bannerImg}
           alt={event.title}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
-        {/* Category badge */}
         {event.category && (
-          <div className="absolute top-3 right-3">
-            <span className={`badge ${getCategoryBadge(event.category)} shadow-sm`}>
-              {event.category}
-            </span>
-          </div>
+          <span className="absolute top-2 right-2 bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">
+            {event.category}
+          </span>
         )}
-        {/* Dark gradient overlay at bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-lg font-bold text-slate-900 mb-1.5 line-clamp-2 leading-snug">
+      <div className="flex-1">
+        <h3 className="text-lg font-bold text-gray-900 mb-2 truncate">
           {event.title}
         </h3>
-        <p className="text-slate-500 text-sm mb-4 line-clamp-2 leading-relaxed flex-1">
+        <p className="text-gray-600 text-sm mb-4 h-10 overflow-hidden">
           {event.description}
         </p>
 
-        {/* Meta */}
-        <ul className="space-y-1.5 text-sm text-slate-600 mb-5" aria-label="Event details">
-          <li className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-indigo-500 shrink-0" aria-hidden="true" />
-            <span>
-              {formattedDate} <span className="font-semibold">at {formattedTime}</span>
-            </span>
-          </li>
-          <li className="flex items-center gap-2">
-            <MapPinIcon className="w-4 h-4 text-indigo-500 shrink-0" aria-hidden="true" />
+        {/* Details */}
+        <div className="space-y-2 text-sm text-gray-700 mb-4">
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-blue-500" />
+            <span>{new Date(event.eventDate).toLocaleString()}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MapPinIcon className="w-4 h-4 text-blue-500" />
             <span className="truncate">{event.venue?.name || "No Venue"}</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <UsersIcon className="w-4 h-4 text-indigo-500 shrink-0" aria-hidden="true" />
+          </div>
+          <div className="flex items-center gap-2">
+            <UsersIcon className="w-4 h-4 text-blue-500" />
             <span>{event.capacity} seats</span>
-          </li>
-        </ul>
+          </div>
+        </div>
 
-        {/* CTA */}
+        {/* Action Button */}
         <Link
           to={`/events/${event.id}`}
-          className="group/btn flex items-center justify-center gap-2 w-full rounded-xl bg-indigo-50 py-2.5 text-sm font-bold text-indigo-700 transition-all duration-200 hover:bg-indigo-600 hover:text-white"
-          aria-label={`View details for ${event.title}`}
-          id={`event-card-${event.id}`}
+          className="block w-full text-center bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition"
         >
           View Details
-          <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
         </Link>
       </div>
-    </article>
+    </div>
   );
 };
 

@@ -1,95 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Building2, MapPin, Users, Wifi, Search,
-  SlidersHorizontal, X, ExternalLink, CheckCircle, XCircle
-} from "lucide-react";
+import { Building2, Search, SlidersHorizontal, X } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { VenueSkeleton, VenueCard } from "../components/venues/VenueCard";
 
-// ─── Skeleton card ────────────────────────────────────────────────────────────
-const VenueSkeleton = () => (
-  <div className="card overflow-hidden">
-    <div className="skeleton aspect-video w-full" />
-    <div className="p-5 space-y-3">
-      <div className="skeleton h-5 w-2/3" />
-      <div className="skeleton h-4 w-full" />
-      <div className="skeleton h-4 w-1/2" />
-    </div>
-  </div>
-);
-
-// ─── Venue Card ───────────────────────────────────────────────────────────────
-const VenueCard = ({ venue }) => (
-  <article className="card card-hover overflow-hidden animate-fade-up flex flex-col">
-    {/* Image */}
-    <div className="aspect-video bg-slate-100 overflow-hidden">
-      {venue.imageUrl ? (
-        <img
-          src={venue.imageUrl}
-          alt={venue.name}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : (
-        <div className="flex h-full items-center justify-center text-slate-300">
-          <Building2 className="w-12 h-12" />
-        </div>
-      )}
-    </div>
-
-    {/* Content */}
-    <div className="p-5 flex flex-col flex-1">
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <h3 className="text-lg font-bold text-slate-900">{venue.name}</h3>
-        <span
-          className={`badge shrink-0 ${venue.available ? "badge-green" : "badge-red"}`}
-          aria-label={venue.available ? "Available" : "Unavailable"}
-        >
-          {venue.available ? (
-            <><CheckCircle className="w-3 h-3 mr-1" /> Available</>
-          ) : (
-            <><XCircle className="w-3 h-3 mr-1" /> Closed</>
-          )}
-        </span>
-      </div>
-
-      <p className="text-slate-500 text-sm line-clamp-2 mb-4 leading-relaxed flex-1">
-        {venue.description || "No description provided."}
-      </p>
-
-      <ul className="space-y-1.5 text-sm font-medium text-slate-600 mb-4" aria-label="Venue details">
-        <li className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-indigo-400 shrink-0" aria-hidden="true" />
-          {venue.location}
-        </li>
-        <li className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-indigo-400 shrink-0" aria-hidden="true" />
-          {venue.capacity.toLocaleString()} capacity
-        </li>
-        {venue.amenities && (
-          <li className="flex items-center gap-2">
-            <Wifi className="w-4 h-4 text-indigo-400 shrink-0" aria-hidden="true" />
-            <span className="truncate">{venue.amenities}</span>
-          </li>
-        )}
-      </ul>
-
-      <div className="mt-auto pt-4 border-t border-slate-100 flex justify-end">
-        <a 
-          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.name + " " + venue.location)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1.5 uppercase tracking-wide transition-colors"
-          id={`venue-map-link-${venue.id}`}
-        >
-          <MapPin className="w-3.5 h-3.5" /> View on Map <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
-        </a>
-      </div>
-    </div>
-  </article>
-);
-
-// ─── Venues Page ──────────────────────────────────────────────────────────────
 const VenuesPage = () => {
+  const { user } = useAuth();
   const [venues, setVenues] = useState([]);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
@@ -144,34 +60,33 @@ const VenuesPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-8 animate-fade-up">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-8">
         <div>
-          <h1 className="text-4xl font-black text-slate-900">University Venues</h1>
-          <p className="text-slate-500 mt-1.5 text-lg">
+          <h1 className="text-4xl font-bold text-gray-900">University Venues</h1>
+          <p className="text-gray-500 mt-2 text-lg">
             Find halls, labs, and outdoor spaces for campus events.
           </p>
         </div>
-        <Link
-          to="/manage-venues"
-          className="btn-primary whitespace-nowrap self-start md:self-auto"
-          id="venues-manage-link"
-        >
-          Manage Venues
-        </Link>
+        {user?.role === "ADMIN" && (
+          <Link
+            to="/dashboard"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Manage Venues
+          </Link>
+        )}
       </div>
 
       {/* Search bar */}
-      <form onSubmit={handleSearch} className="card p-4 mb-8 flex flex-col sm:flex-row gap-3 animate-fade-up" role="search">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" aria-hidden="true" />
+      <form onSubmit={handleSearch} className="bg-white border border-gray-200 rounded p-4 mb-8 flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
           <input
             id="venues-search-input"
             type="search"
             placeholder="Search venues by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input-field pl-10 pr-4 h-11"
-            aria-label="Search venues"
+            className="w-full border border-gray-300 rounded px-3 py-2"
           />
         </div>
 
@@ -179,18 +94,13 @@ const VenuesPage = () => {
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className={`btn-ghost h-11 px-4 cursor-pointer ${showFilters ? "bg-indigo-50 border-indigo-200 text-indigo-700" : ""}`}
-            aria-expanded={showFilters}
-            id="venues-filter-toggle"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded"
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span className="hidden sm:inline">Filters</span>
-            {hasFilters && <span className="w-2 h-2 rounded-full bg-indigo-600" />}
+            Filters {hasFilters && "(*)"}
           </button>
           <button
             type="submit"
-            className="btn-primary h-11 px-5 cursor-pointer"
-            id="venues-search-btn"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Search
           </button>
@@ -199,17 +109,16 @@ const VenuesPage = () => {
 
       {/* Filter panel */}
       {showFilters && (
-        <div className="card p-5 mb-6 animate-fade-up">
+        <div className="bg-gray-50 border border-gray-200 rounded p-4 mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="venues-location-filter" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-sm font-bold text-gray-700 mb-1">
                 Location
               </label>
               <select
-                id="venues-location-filter"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="input-field py-2.5"
+                className="w-full border border-gray-300 rounded px-3 py-2 bg-white"
               >
                 <option value="">All Locations</option>
                 {locations.map((loc) => (
@@ -219,31 +128,29 @@ const VenuesPage = () => {
             </div>
 
             <div>
-              <label htmlFor="venues-capacity-filter" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-sm font-bold text-gray-700 mb-1">
                 Min. Capacity
               </label>
               <input
-                id="venues-capacity-filter"
                 type="number"
                 min="1"
                 placeholder="e.g. 100"
                 value={minCapacity}
                 onChange={(e) => setMinCapacity(e.target.value)}
-                className="input-field py-2.5"
+                className="w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
 
             <div>
-              <label htmlFor="venues-amenity-filter" className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-sm font-bold text-gray-700 mb-1">
                 Amenity
               </label>
               <input
-                id="venues-amenity-filter"
                 type="text"
                 placeholder="e.g. Projector, WiFi"
                 value={amenity}
                 onChange={(e) => setAmenity(e.target.value)}
-                className="input-field py-2.5"
+                className="w-full border border-gray-300 rounded px-3 py-2"
               />
             </div>
           </div>
@@ -252,10 +159,9 @@ const VenuesPage = () => {
             <button
               type="button"
               onClick={clearFilters}
-              className="btn-ghost text-indigo-600 border-indigo-200 mt-4 cursor-pointer"
-              id="venues-clear-filters"
+              className="mt-4 text-red-600 hover:text-red-800 font-semibold text-sm"
             >
-              <X className="w-4 h-4" /> Clear all filters
+              Clear all filters
             </button>
           )}
         </div>
