@@ -25,25 +25,25 @@ To ensure every member has a high-impact contribution, the project is divided in
 *   **Special Feature:** Google OAuth Integration & Multi-role Auth System.
 *   **Static Page:** Home Page (Hero, Features, Bento-Grid Design).
 
-### **Member 2 (AI Lead): Smart Support & Info**
+### **Member 2 (Shehani03): Smart Support & Info**
 *   **CRUD:** FAQ & System Knowledge Base Management.
 *   **Report:** AI Interaction Analytics & Common Queries Report.
 *   **Special Feature:** Gemini AI Chatbot (Google Generative AI Integration).
 *   **Static Page:** About Page (High-Fidelity Bento Design).
 
-### **Member 3 (Logistics Lead): Support & Event Operations**
+### **Member 3 (it23677296-ayesha): Support & Event Operations**
 *   **CRUD:** Event Management Lifecycle (Full CRUD).
 *   **Report:** Event Attendance & Capacity Analytics.
 *   **Special Feature:** Live Support Chat (Bidirectional Messaging).
 *   **Static Page:** Contact Page & Support Portal.
 
-### **Member 4 (Transactions Lead): Bookings & UX**
+### **Member 4 (IT21012624): Bookings & UX**
 *   **CRUD:** Booking & Reservation Management (Full CRUD).
 *   **Report:** Financial Summary & Sales Executive Report.
 *   **Special Feature:** Payment Gateway & QR Code Ticket Generator.
 *   **Static Page:** FAQ Page (Categorized Accordion Style).
 
-### **Member 5 (Infrastructure Lead): Performance & Utilities**
+### **Member 5 (PrabhashSwarnajith): Performance & Utilities**
 *   **CRUD:** Venue & Review Management (Full CRUD).
 *   **Report:** Venue Utilization & Engagement Statistics.
 *   **Special Feature:** Live Event Countdown Widget & Dark Mode System.
