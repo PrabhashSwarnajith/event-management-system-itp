@@ -4,6 +4,7 @@ import com.eventmanagement.backend.dto.UserProfileRequest;
 import com.eventmanagement.backend.model.User;
 import com.eventmanagement.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -14,22 +15,32 @@ public class UserService {
     private UserRepository userRepository;
 
     public User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof User user) {
+            return user;
+        }
+
+        return userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public User updateProfile(UserProfileRequest profileRequest) {
         User user = getCurrentUser();
-        if (profileRequest.getFirstName() != null) {
-            user.setFirstName(profileRequest.getFirstName());
+        String firstName = profileRequest.getFirstName();
+        String lastName = profileRequest.getLastName();
+
+        if (firstName != null || lastName != null) {
+            String updatedName = String.join(" ",
+                    firstName == null ? "" : firstName.trim(),
+                    lastName == null ? "" : lastName.trim()).trim();
+
+            if (!updatedName.isBlank()) {
+                user.setName(updatedName);
+            }
         }
-        if (profileRequest.getLastName() != null) {
-            user.setLastName(profileRequest.getLastName());
-        }
-        if (profileRequest.getPhoneNumber() != null) {
-            user.setPhoneNumber(profileRequest.getPhoneNumber());
-        }
+
         return userRepository.save(user);
     }
 
@@ -39,7 +50,7 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
+        return userRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

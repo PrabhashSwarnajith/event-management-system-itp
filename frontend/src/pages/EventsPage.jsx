@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { Search, Filter, X, Calendar, SlidersHorizontal } from "lucide-react";
 import EventCard from "../components/EventCard";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
-// ─── Skeleton loader card ─────────────────────────────────────────────────────
+/**
+ * SkeletonCard - Loading skeleton for event card
+ */
 const SkeletonCard = () => (
   <div className="card overflow-hidden">
     <div className="skeleton h-44 w-full" />
@@ -17,9 +17,7 @@ const SkeletonCard = () => (
   </div>
 );
 
-// ─── Events Page ──────────────────────────────────────────────────────────────
 const EventsPage = () => {
-  const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -145,16 +143,7 @@ const EventsPage = () => {
             )}
           </button>
 
-          {/* Organizer link */}
-          {(user?.role === "ORGANIZER" || user?.role === "ADMIN") && (
-            <Link
-              to="/manage-events"
-              className="btn-primary h-11 hidden lg:flex whitespace-nowrap"
-              id="events-organizer-tools"
-            >
-              + New Event
-            </Link>
-          )}
+          {/* Admin event creation lives in the admin dashboard */}
         </div>
       </div>
 

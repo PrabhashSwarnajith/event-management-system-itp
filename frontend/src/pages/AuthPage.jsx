@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { User, Lock, Mail, Sparkles, Eye, EyeOff, GraduationCap } from "lucide-react";
+import { User, Lock, Mail, Sparkles, Eye, EyeOff } from "lucide-react";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -108,7 +108,7 @@ const AuthPage = () => {
                   I am an...
                 </label>
                 <div className="grid grid-cols-2 gap-3">
-                  {["ATTENDEE", "ORGANIZER"].map((role) => (
+                  {["ATTENDEE"].map((role) => (
                     <button
                       key={role}
                       type="button"
@@ -120,12 +120,8 @@ const AuthPage = () => {
                       }`}
                       aria-pressed={formData.role === role}
                     >
-                      {role === "ATTENDEE" ? (
-                        <User className="w-4 h-4" />
-                      ) : (
-                        <GraduationCap className="w-4 h-4" />
-                      )}
-                      {role === "ATTENDEE" ? "Attendee" : "Organizer"}
+                      <User className="w-4 h-4" />
+                      Attendee
                     </button>
                   ))}
                 </div>

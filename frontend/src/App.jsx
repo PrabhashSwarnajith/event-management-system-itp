@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
-import { Calendar, MapPin, Ticket, User, LayoutDashboard, Home, Menu, X, LogOut, ChevronDown, Sparkles } from "lucide-react";
+import { Calendar, MapPin, User, LayoutDashboard, Home, Menu, X, LogOut, ChevronDown, Sparkles } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -82,11 +82,6 @@ const Navigation = () => {
             <NavLink to="/venues" className={navLinkClass}>
               <MapPin className="w-4 h-4" /> Venues
             </NavLink>
-            {user && (
-              <NavLink to="/bookings" className={navLinkClass}>
-                <Ticket className="w-4 h-4" /> My Bookings
-              </NavLink>
-            )}
             {user?.role === "ADMIN" && (
               <NavLink to="/dashboard" className={navLinkClass}>
                 <LayoutDashboard className="w-4 h-4" /> Admin
@@ -124,13 +119,13 @@ const Navigation = () => {
                     >
                       <User className="w-4 h-4 text-slate-400" /> View Profile
                     </Link>
-                    {(user.role === "ORGANIZER" || user.role === "ADMIN") && (
+                    {user.role === "ADMIN" && (
                       <Link
-                        to="/manage-events"
+                        to="/dashboard"
                         className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                         role="menuitem"
                       >
-                        <Calendar className="w-4 h-4 text-slate-400" /> Manage Events
+                        <LayoutDashboard className="w-4 h-4 text-slate-400" /> Admin Dashboard
                       </Link>
                     )}
                     <button
@@ -171,7 +166,6 @@ const Navigation = () => {
           <NavLink to="/" end className={navLinkClass}><Home className="w-4 h-4" /> Home</NavLink>
           <NavLink to="/events" className={navLinkClass}><Calendar className="w-4 h-4" /> Events</NavLink>
           <NavLink to="/venues" className={navLinkClass}><MapPin className="w-4 h-4" /> Venues</NavLink>
-          {user && <NavLink to="/bookings" className={navLinkClass}><Ticket className="w-4 h-4" /> My Bookings</NavLink>}
           {user?.role === "ADMIN" && <NavLink to="/dashboard" className={navLinkClass}><LayoutDashboard className="w-4 h-4" /> Admin</NavLink>}
 
           <div className="pt-3 border-t border-slate-100 mt-2">
@@ -180,9 +174,9 @@ const Navigation = () => {
                 <Link to="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
                   <User className="w-4 h-4" /> {user.name}
                 </Link>
-                {(user.role === "ORGANIZER" || user.role === "ADMIN") && (
-                  <Link to="/manage-events" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
-                    <Calendar className="w-4 h-4" /> Manage Events
+                {user.role === "ADMIN" && (
+                  <Link to="/dashboard" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
+                    <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
                   </Link>
                 )}
                 <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-red-600 hover:bg-red-50 transition cursor-pointer">
@@ -226,16 +220,15 @@ const Footer = () => (
             <li><Link to="/" className="hover:text-white transition">Home</Link></li>
             <li><Link to="/events" className="hover:text-white transition">Browse Events</Link></li>
             <li><Link to="/venues" className="hover:text-white transition">Venues</Link></li>
-            <li><Link to="/bookings" className="hover:text-white transition">My Bookings</Link></li>
+            <li><Link to="/profile" className="hover:text-white transition">Account</Link></li>
           </ul>
         </div>
 
-        {/* Organizers */}
+        {/* Admin */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-4">Organizers</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-4">Admin</h3>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/manage-events" className="hover:text-white transition">Manage Events</Link></li>
-            <li><Link to="/manage-venues" className="hover:text-white transition">Manage Venues</Link></li>
+            <li><Link to="/dashboard" className="hover:text-white transition">Dashboard</Link></li>
           </ul>
         </div>
       </div>
@@ -249,28 +242,37 @@ const Footer = () => (
 );
 
 // ─── App ──────────────────────────────────────────────────────────────────────
+const AppShell = () => {
+  const location = useLocation();
+  const isAdminDashboard = location.pathname.startsWith("/dashboard");
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {!isAdminDashboard && <Navigation />}
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/:id" element={<EventDetailsPage />} />
+          <Route path="/manage-events" element={<ManageEvents />} />
+          <Route path="/venues" element={<VenuesPage />} />
+          <Route path="/manage-venues" element={<ManageVenues />} />
+          <Route path="/bookings/*" element={<BookingsPage />} />
+          <Route path="/dashboard/*" element={<AdminDashboard />} />
+        </Routes>
+      </main>
+      {!isAdminDashboard && <Footer />}
+    </div>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen flex flex-col">
-          <Navigation />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/events" element={<EventsPage />} />
-              <Route path="/events/:id" element={<EventDetailsPage />} />
-              <Route path="/manage-events" element={<ManageEvents />} />
-              <Route path="/venues" element={<VenuesPage />} />
-              <Route path="/manage-venues" element={<ManageVenues />} />
-              <Route path="/bookings/*" element={<BookingsPage />} />
-              <Route path="/dashboard/*" element={<AdminDashboard />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+        <AppShell />
       </Router>
     </AuthProvider>
   );
