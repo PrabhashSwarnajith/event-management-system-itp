@@ -1,4 +1,5 @@
-import { Building2, MapPin, Users, Wifi, ExternalLink } from "lucide-react";
+import { Building2, MapPin, Users, Wifi, ExternalLink, BookOpen } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const VenueSkeleton = () => (
   <div className="bg-white border border-gray-200 rounded p-4 mb-4">
@@ -8,8 +9,8 @@ export const VenueSkeleton = () => (
   </div>
 );
 
-export const VenueCard = ({ venue }) => (
-  <div className="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col mb-4 overflow-hidden">
+export const VenueCard = ({ venue, user }) => (
+  <div className="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col mb-4 overflow-hidden hover:shadow-lg transition">
     {/* Image */}
     <div className="w-full h-48 bg-gray-100 relative">
       {venue.imageUrl ? (
@@ -55,15 +56,26 @@ export const VenueCard = ({ venue }) => (
         )}
       </div>
 
-      <div className="mt-2 pt-3 border-t border-gray-200 text-right">
+      <div className="mt-4 pt-3 border-t border-gray-200 flex gap-2">
         <a
           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.name + " " + venue.location)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 text-sm font-semibold inline-flex items-center gap-1"
+          className="flex-1 text-blue-600 hover:text-blue-800 text-sm font-semibold inline-flex items-center justify-center gap-1 py-2 rounded hover:bg-blue-50 transition"
         >
-          <MapPin className="w-4 h-4" /> View Map <ExternalLink className="w-3 h-3" />
+          <MapPin className="w-4 h-4" /> View Map
         </a>
+        {venue.available && (
+          user ? (
+            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center justify-center gap-2 transition">
+              <BookOpen className="w-4 h-4" /> Book Venue
+            </button>
+          ) : (
+            <Link to="/auth" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded inline-flex items-center justify-center gap-2 transition">
+              <BookOpen className="w-4 h-4" /> Sign In
+            </Link>
+          )
+        )}
       </div>
     </div>
   </div>
