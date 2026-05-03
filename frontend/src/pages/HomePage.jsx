@@ -37,10 +37,10 @@ const HomePage = () => {
       {/* Features */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-3">
             Everything you need
           </h2>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">
+          <p className="text-slate-500 dark:text-slate-400 text-lg max-w-xl mx-auto">
             From discovering events to managing your bookings, UniEvents has you covered.
           </p>
         </div>
@@ -74,12 +74,12 @@ const HomePage = () => {
       </section>
 
       {/* Upcoming Events */}
-      <section className="bg-slate-50 border-y border-slate-200 py-20">
+      <section className="bg-slate-50 dark:bg-slate-900/50 border-y border-slate-200 dark:border-slate-800 py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
             <div>
-              <h2 className="text-3xl font-black text-slate-900">Upcoming Events</h2>
-              <p className="text-slate-500 mt-1">Don't miss what's happening next on campus.</p>
+              <h2 className="text-3xl font-black text-slate-900 dark:text-white">Upcoming Events</h2>
+              <p className="text-slate-500 dark:text-slate-400 mt-1">Don't miss what's happening next on campus.</p>
             </div>
             <Link
               to="/events"
@@ -99,8 +99,8 @@ const HomePage = () => {
             </div>
           ) : upcomingEvents.length === 0 ? (
             <div className="card border-dashed p-16 text-center">
-              <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-slate-700 mb-2">No upcoming events</h3>
+              <Calendar className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-2">No upcoming events</h3>
               <p className="text-slate-400 text-sm mb-6">Check back soon for new events!</p>
               <Link to="/events" className="btn-primary">Browse All Events</Link>
             </div>

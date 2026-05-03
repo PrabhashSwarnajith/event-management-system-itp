@@ -3,7 +3,7 @@ import { BookingCard } from "./BookingCard";
 /**
  * BookingsList - List of bookings
  */
-export const BookingsList = ({ bookings, onViewTicket, onCancel }) => {
+export const BookingsList = ({ bookings, onViewTicket, onViewInvoice, onCancel }) => {
   if (bookings.length === 0) {
     return (
       <div className="card border-dashed p-12 text-center">
@@ -19,6 +19,7 @@ export const BookingsList = ({ bookings, onViewTicket, onCancel }) => {
           key={booking.id}
           booking={booking}
           onViewTicket={onViewTicket}
+          onViewInvoice={onViewInvoice}
           onCancel={onCancel}
         />
       ))}

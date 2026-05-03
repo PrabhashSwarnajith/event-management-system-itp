@@ -83,7 +83,7 @@ export const HeroSection = () => (
       </div>
     </div>
 
-    {/* Bottom wave */}
-    <div className="h-16 bg-gradient-to-b from-transparent to-slate-50/10" />
+    {/* Bottom fade */}
+    <div className="h-12 bg-gradient-to-b from-transparent to-transparent" />
   </section>
 );

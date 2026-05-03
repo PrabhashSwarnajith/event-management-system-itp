@@ -267,7 +267,7 @@ const AdminDashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="min-w-0 p-4 sm:p-6 lg:p-8">
+        <main className="min-w-0 flex flex-col p-4 sm:p-6 lg:p-8" style={{ minHeight: "100vh" }}>
           <div className="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -324,41 +324,43 @@ const AdminDashboard = () => {
             </div>
           ) : (
             <>
-              {/* Stats Grid */}
-              <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard
-                  label="Users"
-                  value={stats.users}
-                  description="Registered accounts"
-                  icon={Users}
-                  tone="indigo"
-                  onClick={() => setActive("users")}
-                />
-                <StatCard
-                  label="Events"
-                  value={stats.events}
-                  description={`${stats.publishedEvents} published`}
-                  icon={Calendar}
-                  tone="cyan"
-                  onClick={() => setActive("events")}
-                />
-                <StatCard
-                  label="Venues"
-                  value={stats.venues}
-                  description={`${stats.availableVenues} available / ${stats.totalCapacity} seats`}
-                  icon={Building2}
-                  tone="emerald"
-                  onClick={() => setActive("venues")}
-                />
-                <StatCard
-                  label="Bookings"
-                  value={stats.bookings}
-                  description={`${stats.confirmedBookings} confirmed`}
-                  icon={Ticket}
-                  tone="amber"
-                  onClick={() => setActive("bookings")}
-                />
-              </div>
+              {/* Stats Grid — hidden on livechat page */}
+              {active !== "livechat" && (
+                <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatCard
+                    label="Users"
+                    value={stats.users}
+                    description="Registered accounts"
+                    icon={Users}
+                    tone="indigo"
+                    onClick={() => setActive("users")}
+                  />
+                  <StatCard
+                    label="Events"
+                    value={stats.events}
+                    description={`${stats.publishedEvents} published`}
+                    icon={Calendar}
+                    tone="cyan"
+                    onClick={() => setActive("events")}
+                  />
+                  <StatCard
+                    label="Venues"
+                    value={stats.venues}
+                    description={`${stats.availableVenues} available / ${stats.totalCapacity} seats`}
+                    icon={Building2}
+                    tone="emerald"
+                    onClick={() => setActive("venues")}
+                  />
+                  <StatCard
+                    label="Bookings"
+                    value={stats.bookings}
+                    description={`${stats.confirmedBookings} confirmed`}
+                    icon={Ticket}
+                    tone="amber"
+                    onClick={() => setActive("bookings")}
+                  />
+                </div>
+              )}
 
               {/* Sections */}
               {active === "overview" && (
@@ -457,11 +459,7 @@ const AdminDashboard = () => {
               )}
 
               {active === "livechat" && (
-                <div>
-                  <div className="mb-6">
-                    <h2 className="text-xl font-black text-slate-900">Live Support Chat</h2>
-                    <p className="text-sm text-slate-500 mt-1">Monitor and reply to student support messages in real-time.</p>
-                  </div>
+                <div className="flex-1 min-h-0" style={{ height: "calc(100vh - 220px)" }}>
                   <LiveChatPanel adminName={user.name || "Admin"} />
                 </div>
               )}
@@ -476,26 +474,29 @@ const AdminDashboard = () => {
 // Stat Card Component
 const StatCard = ({ label, value, description, icon: Icon, tone, onClick }) => {
   const tones = {
-    indigo: "bg-indigo-50 text-indigo-600 border-indigo-100",
-    cyan: "bg-cyan-50 text-cyan-700 border-cyan-100",
-    emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    amber: "bg-amber-50 text-amber-700 border-amber-100"
+    indigo:  { wrap: "bg-indigo-50 border-indigo-200",  icon: "bg-indigo-600 text-white",   val: "text-indigo-700", hover: "hover:border-indigo-400" },
+    cyan:    { wrap: "bg-sky-50 border-sky-200",         icon: "bg-sky-600 text-white",      val: "text-sky-700",    hover: "hover:border-sky-400" },
+    emerald: { wrap: "bg-emerald-50 border-emerald-200", icon: "bg-emerald-600 text-white",  val: "text-emerald-700",hover: "hover:border-emerald-400" },
+    amber:   { wrap: "bg-amber-50 border-amber-200",     icon: "bg-amber-500 text-white",    val: "text-amber-700",  hover: "hover:border-amber-400" },
   };
+  const t = tones[tone] || tones.indigo;
 
   return (
     <button
       onClick={onClick}
-      className="rounded-lg border border-slate-200 bg-white p-5 text-left transition hover:border-slate-300 hover:shadow-sm cursor-pointer"
+      className={`group relative w-full rounded-xl border ${t.wrap} ${t.hover} p-5 text-left transition-all duration-200 hover:shadow-md cursor-pointer overflow-hidden`}
     >
-      <div className="mb-4 flex items-center justify-between">
-        <div className={`flex h-11 w-11 items-center justify-center rounded-lg border ${tones[tone] || tones.indigo}`}>
+      <div className="flex items-start justify-between mb-3">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${t.icon} shadow-sm`}>
           <Icon className="h-5 w-5" />
         </div>
-        <span className="text-xs font-bold uppercase text-slate-400">Open</span>
+        <span className={`text-3xl font-black ${t.val}`}>{value}</span>
       </div>
-      <p className="text-sm font-semibold text-slate-500">{label}</p>
-      <p className="text-3xl font-black text-slate-900">{value}</p>
-      <p className="mt-1 text-xs font-semibold text-slate-400">{description}</p>
+      <p className="text-sm font-bold text-slate-700">{label}</p>
+      <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+      <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Open →</span>
+      </div>
     </button>
   );
 };

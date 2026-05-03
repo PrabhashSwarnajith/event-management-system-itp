@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import AccountLayout from "../../components/account/AccountLayout";
 import { CalendarIcon, TicketIcon, AlertCircle } from "lucide-react";
 import { TicketModal } from "../../components/bookings/TicketModal";
+import { InvoiceModal } from "../../components/bookings/InvoiceModal";
 import { BookingCard } from "../../components/bookings/BookingCard";
 import { BookingsTabBar } from "../../components/bookings/BookingsTabBar";
 import { BookingsList } from "../../components/bookings/BookingsList";
@@ -15,6 +16,7 @@ const BookingsPage = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("upcoming");
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [ticketError, setTicketError] = useState("");
 
   const fetchBookings = async () => {
@@ -56,6 +58,13 @@ const BookingsPage = () => {
     }
   };
 
+  const handleViewInvoice = (bookingId) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (booking) {
+      setSelectedInvoice(booking);
+    }
+  };
+
   if (!user) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-28 text-center animate-fade-in">
@@ -89,8 +98,8 @@ const BookingsPage = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 animate-fade-up">
           <div>
-            <h1 className="text-4xl font-black text-slate-900">My Bookings</h1>
-            <p className="text-slate-500 mt-1">Track all your event reservations.</p>
+            <h1 className="text-4xl font-black text-slate-900 dark:text-white">My Bookings</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Track all your event reservations.</p>
           </div>
           <Link to="/events" className="btn-primary whitespace-nowrap" id="bookings-browse-more">
             <CalendarIcon className="w-4 h-4" /> Browse Events
@@ -126,8 +135,8 @@ const BookingsPage = () => {
             <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-5">
               <TicketIcon className="w-8 h-8 text-slate-400" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">No Bookings Yet</h2>
-            <p className="text-slate-500 mb-6">You haven't booked any events. Start exploring!</p>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">No Bookings Yet</h2>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">You haven't booked any events. Start exploring!</p>
             <Link to="/events" className="btn-primary" id="bookings-empty-cta">Browse Events</Link>
           </div>
         ) : visibleBookings.length === 0 ? (
@@ -138,6 +147,7 @@ const BookingsPage = () => {
           <BookingsList
             bookings={visibleBookings}
             onViewTicket={handleViewTicket}
+            onViewInvoice={handleViewInvoice}
             onCancel={handleCancelBooking}
           />
         )}
@@ -145,6 +155,11 @@ const BookingsPage = () => {
         {/* Ticket modal */}
         {selectedTicket && (
           <TicketModal ticket={selectedTicket} onClose={() => setSelectedTicket(null)} />
+        )}
+
+        {/* Invoice modal */}
+        {selectedInvoice && (
+          <InvoiceModal booking={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
         )}
       </div>
     </AccountLayout>

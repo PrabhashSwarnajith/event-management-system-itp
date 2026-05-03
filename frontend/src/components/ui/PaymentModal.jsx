@@ -17,6 +17,7 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
     paymentMethod: "CARD",
   });
   const [error, setError] = useState("");
+  const [invoice, setInvoice] = useState(null);
 
   // Format card number with spaces every 4 digits
   const formatCardNumber = (val) => {
@@ -46,7 +47,29 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
     setError("");
     setStep("processing");
 
-    // Simulate network delay
+    // For cash at gate, mark as pending - payment on arrival
+    if (form.paymentMethod === "CASH_AT_GATE") {
+      await new Promise((r) => setTimeout(r, 800));
+      
+      const invoiceData = {
+        success: true,
+        paymentMethod: "CASH_AT_GATE",
+        amount: amount,
+        ticketCount: booking?.ticketCount,
+        eventTitle: booking?.eventTitle,
+        status: "PENDING_PAYMENT",
+        transactionId: "CASH-" + Date.now(),
+        invoiceNumber: "INV-" + booking?.eventTitle?.substring(0, 3).toUpperCase() + "-" + Date.now().toString().slice(-6),
+        message: "Reservation confirmed. Please pay at the event gate before entry."
+      };
+      
+      setInvoice(invoiceData);
+      setStep("success");
+      setTimeout(() => onSuccess && onSuccess(invoiceData), 2500);
+      return;
+    }
+
+    // Simulate network delay for card/bank transfer
     await new Promise((r) => setTimeout(r, 1800));
 
     try {
@@ -72,6 +95,10 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
         return;
       }
 
+      setInvoice({
+        ...data,
+        invoiceNumber: "INV-" + booking?.eventTitle?.substring(0, 3).toUpperCase() + "-" + Date.now().toString().slice(-6),
+      });
       setStep("success");
       setTimeout(() => onSuccess && onSuccess(data), 2500);
     } catch (err) {
@@ -132,12 +159,20 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
             <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-emerald-600" />
             </div>
-            <p className="font-black text-slate-900 text-xl">Payment Successful!</p>
-            <p className="text-sm text-slate-500 text-center">
-              Your booking is confirmed. A QR ticket has been generated for your event.
+            <p className="font-black text-slate-900 text-xl">
+              {form.paymentMethod === "CASH_AT_GATE" ? "Reservation Confirmed!" : "Payment Successful!"}
             </p>
-            <div className="w-full bg-emerald-50 rounded-xl p-4 text-center border border-emerald-200">
-              <p className="text-xs text-emerald-700 font-semibold">Check My Bookings to view your QR ticket</p>
+            <p className="text-sm text-slate-500 text-center">
+              {form.paymentMethod === "CASH_AT_GATE" 
+                ? "Your booking is reserved. Please pay LKR " + (amount || 0).toLocaleString() + " at the event gate before entry."
+                : "Your booking is confirmed. A QR ticket has been generated for your event."}
+            </p>
+            <div className={`w-full ${form.paymentMethod === "CASH_AT_GATE" ? "bg-amber-50 border-amber-200" : "bg-emerald-50 border-emerald-200"} rounded-xl p-4 text-center border`}>
+              <p className={`text-xs font-semibold ${form.paymentMethod === "CASH_AT_GATE" ? "text-amber-700" : "text-emerald-700"}`}>
+                {form.paymentMethod === "CASH_AT_GATE" 
+                  ? "✓ Show your booking confirmation at the gate"
+                  : "✓ Check My Bookings to view your QR ticket"}
+              </p>
             </div>
           </div>
         )}
@@ -163,19 +198,23 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
         {step === "form" && (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {/* Payment method tabs */}
-            <div className="grid grid-cols-2 gap-2">
-              {["CARD", "BANK_TRANSFER"].map((method) => (
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: "CARD", label: "💳 Card" },
+                { id: "CASH_AT_GATE", label: "💰 Cash at Gate" },
+                { id: "BANK_TRANSFER", label: "🏦 Bank Transfer" }
+              ].map((method) => (
                 <button
-                  key={method}
+                  key={method.id}
                   type="button"
-                  onClick={() => setForm({ ...form, paymentMethod: method })}
+                  onClick={() => setForm({ ...form, paymentMethod: method.id })}
                   className={`py-2 px-3 rounded-xl border-2 text-sm font-semibold transition cursor-pointer ${
-                    form.paymentMethod === method
+                    form.paymentMethod === method.id
                       ? "border-indigo-600 bg-indigo-50 text-indigo-700"
                       : "border-slate-200 text-slate-600 hover:border-slate-300"
                   }`}
                 >
-                  {method === "CARD" ? "💳 Card" : "🏦 Bank Transfer"}
+                  {method.label}
                 </button>
               ))}
             </div>
@@ -190,6 +229,19 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
               </div>
             )}
 
+            {form.paymentMethod === "CASH_AT_GATE" && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                <p className="font-bold mb-2">💰 Pay at Event Gate</p>
+                <ul className="space-y-1 text-xs leading-relaxed">
+                  <li>✓ Present your booking confirmation on event day</li>
+                  <li>✓ Payment must be made at the gate before entry</li>
+                  <li>✓ Accepted: Cash only</li>
+                  <li>✓ Your QR ticket will be activated once payment is received</li>
+                </ul>
+                <p className="mt-3 font-semibold text-amber-900">Amount to pay at gate: LKR {(amount || 0).toLocaleString()}</p>
+              </div>
+            )}
+
             {form.paymentMethod === "CARD" && (
               <>
                 {/* Card number */}
@@ -200,7 +252,7 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
                   <div className="relative">
                     <input
                       type="text"
-                      required
+                      required={form.paymentMethod === "CARD"}
                       placeholder="1234 5678 9012 3456"
                       value={form.cardNumber}
                       onChange={(e) =>
@@ -227,7 +279,7 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
                   </label>
                   <input
                     type="text"
-                    required
+                    required={form.paymentMethod === "CARD"}
                     placeholder="As printed on card"
                     value={form.cardHolderName}
                     onChange={(e) => setForm({ ...form, cardHolderName: e.target.value })}
@@ -244,7 +296,7 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
                     </label>
                     <input
                       type="text"
-                      required
+                      required={form.paymentMethod === "CARD"}
                       placeholder="MM/YY"
                       value={form.expiryDate}
                       onChange={(e) =>
@@ -258,7 +310,7 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
                     <label className="block text-sm font-semibold text-slate-700 mb-1.5">CVV</label>
                     <input
                       type="password"
-                      required
+                      required={form.paymentMethod === "CARD"}
                       maxLength={4}
                       placeholder="•••"
                       value={form.cvv}
@@ -288,7 +340,11 @@ const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
               style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
               id="payment-submit-btn"
             >
-              Pay LKR {(amount || 0).toLocaleString()} →
+              {form.paymentMethod === "CASH_AT_GATE" 
+                ? "Reserve for Cash at Gate →"
+                : form.paymentMethod === "BANK_TRANSFER"
+                ? "Proceed with Bank Transfer →"
+                : "Pay LKR " + (amount || 0).toLocaleString() + " →"}
             </button>
           </form>
         )}

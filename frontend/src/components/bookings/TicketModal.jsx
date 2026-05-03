@@ -1,4 +1,4 @@
-import { TicketIcon, XCircleIcon } from "lucide-react";
+import { TicketIcon, XCircleIcon, Printer } from "lucide-react";
 import QRCode from "react-qr-code";
 
 /**
@@ -9,6 +9,10 @@ export const TicketModal = ({ ticket, onClose }) => {
     CONFIRMED: "badge-green",
     CANCELLED: "badge-red",
     PENDING: "badge-amber",
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
@@ -82,13 +86,23 @@ export const TicketModal = ({ ticket, onClose }) => {
             ))}
           </dl>
 
-          <button
-            onClick={onClose}
-            className="btn-ghost w-full justify-center cursor-pointer"
-            id="ticket-modal-close"
-          >
-            Close Ticket
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handlePrint}
+              className="btn-primary flex-1 flex items-center justify-center gap-2 cursor-pointer"
+              id="ticket-modal-print"
+            >
+              <Printer className="w-4 h-4" />
+              Print Ticket
+            </button>
+            <button
+              onClick={onClose}
+              className="btn-ghost flex-1 cursor-pointer"
+              id="ticket-modal-close"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

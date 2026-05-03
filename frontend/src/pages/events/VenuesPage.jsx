@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { VenueSkeleton, VenueCard } from "../../components/venues/VenueCard";
 
 const VenuesPage = () => {
-  const { user } = useAuth();
+  const { user, authFetch } = useAuth();
   const [venues, setVenues] = useState([]);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
@@ -188,7 +188,7 @@ const VenuesPage = () => {
           <p className="text-sm text-slate-500 mb-5 animate-fade-up">{venues.length} venue{venues.length !== 1 ? "s" : ""} found</p>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 stagger">
             {venues.map((venue) => (
-              <VenueCard key={venue.id} venue={venue} user={user} />
+              <VenueCard key={venue.id} venue={venue} user={user} authFetch={authFetch} />
             ))}
           </div>
         </>

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 /**
  * BookingCard - Individual booking card with actions
  */
-export const BookingCard = ({ booking, onViewTicket, onCancel }) => {
+export const BookingCard = ({ booking, onViewTicket, onViewInvoice, onCancel }) => {
   const STATUS_STYLES = {
     CONFIRMED: "badge-green",
     CANCELLED: "badge-red",
@@ -82,6 +82,14 @@ export const BookingCard = ({ booking, onViewTicket, onCancel }) => {
             id={`booking-view-ticket-${booking.id}`}
           >
             <ReceiptText className="w-4 h-4" /> View Ticket
+          </button>
+
+          <button
+            onClick={() => onViewInvoice(booking.id)}
+            className="btn-ghost text-emerald-600 border-emerald-200 hover:bg-emerald-50 text-sm py-2 px-3 cursor-pointer"
+            id={`booking-view-invoice-${booking.id}`}
+          >
+            <ReceiptText className="w-4 h-4" /> Invoice
           </button>
 
           {!isPast && booking.status === "CONFIRMED" && (
