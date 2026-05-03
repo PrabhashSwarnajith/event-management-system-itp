@@ -193,7 +193,7 @@ const SmartHelp = () => {
         className={`fixed z-50 flex items-center gap-2 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-2xl transition-all duration-300 ${
           open ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
         }`}
-        style={{ background: "linear-gradient(135deg, #6366f1, #7c3aed)", bottom: "1rem", right: "1rem" }}
+        style={{ background: "linear-gradient(135deg, #6366f1, #7c3aed)", bottom: "1.25rem", right: "1.25rem" }}
         aria-label="Open help desk"
         id="chatbot-trigger-btn"
       >
@@ -216,8 +216,8 @@ const SmartHelp = () => {
           width: "min(calc(100vw - 2rem), 380px)", 
           height: minimized ? 56 : "min(calc(100vh - 2rem), 540px)",
           maxHeight: "calc(100vh - 2rem)",
-          bottom: "1rem",
-          right: "1rem"
+          bottom: "5rem",
+          right: "1.25rem"
         }}
       >
         <div className="flex shrink-0 items-center justify-between bg-indigo-700 px-4 py-3 text-white">

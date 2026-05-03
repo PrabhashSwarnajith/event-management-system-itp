@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { MessageSquare, X, Send, Clock, ChevronDown, Shield, Headphones } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
-export const LIVE_CHAT_STORAGE_KEY = "unievents_livechat_v2";
+export const LIVE_CHAT_STORAGE_KEY = "viva_chat_final";
 
 const SUPPORT_AGENT = { name: "Campus Help Desk" };
 
@@ -77,21 +77,34 @@ const CustomerChat = ({ user }) => {
     }
   }, []);
 
-  // Poll every 1.5 s for admin replies from localStorage
+  // Listen for storage changes (instant sync between tabs)
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === LIVE_CHAT_STORAGE_KEY) {
+        const store = readChatStore();
+        if (store.messages) {
+          setMessages(store.messages);
+          lastAgentMsgCount.current = store.messages.filter(m => m.role === "agent").length;
+        }
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  // Poll as fallback every 2s
   useEffect(() => {
     const interval = setInterval(() => {
       const store = readChatStore();
       if (!store.messages) return;
       const agentMsgs = store.messages.filter((m) => m.role === "agent");
-      const newCount  = agentMsgs.length;
-      const prevCount = lastAgentMsgCount.current;
-      if (newCount > prevCount) {
-        const diff = newCount - prevCount;          // capture BEFORE updating ref
-        lastAgentMsgCount.current = newCount;       // update ref
-        setMessages(store.messages);               // refresh conversation
-        if (!open) setUnread((c) => c + diff);     // show badge
+      if (agentMsgs.length > lastAgentMsgCount.current) {
+        const diff = agentMsgs.length - lastAgentMsgCount.current;
+        lastAgentMsgCount.current = agentMsgs.length;
+        setMessages(store.messages);
+        if (!open) setUnread((c) => c + diff);
       }
-    }, 1500);
+    }, 2000);
     return () => clearInterval(interval);
   }, [open]);
 
@@ -143,6 +156,7 @@ const CustomerChat = ({ user }) => {
         time:      new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
         timestamp: Date.now(),
         isAuto:    true,
+        sessionId, // Attach session ID to auto-reply
       };
       const updated = [...newMessages, agentMsg];
       setMessages(updated);
@@ -157,10 +171,11 @@ const CustomerChat = ({ user }) => {
   };
 
   const clearChat = () => {
+    if (!window.confirm("Clear this conversation?")) return;
     setMessages([]);
     setUnread(0);
     lastAgentMsgCount.current = 0;
-    writeChatStore({ messages: [], session: null });
+    writeChatStore({ messages: [], sessionId: null });
   };
 
   const fmt = (text) =>
@@ -174,7 +189,7 @@ const CustomerChat = ({ user }) => {
         className={`fixed z-40 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white shadow-2xl transition-all duration-300 ${
           open ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
         }`}
-        style={{ background: "linear-gradient(135deg, #0ea5e9, #2563eb)", bottom: "5.5rem", right: "1.25rem" }}
+        style={{ background: "linear-gradient(135deg, #0ea5e9, #2563eb)", bottom: "5.25rem", right: "1.25rem" }}
         aria-label="Open live chat"
         id="livechat-trigger-btn"
       >
@@ -195,10 +210,11 @@ const CustomerChat = ({ user }) => {
           open ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
         }`}
         style={{
-          width:     "min(calc(100vw - 2rem), 360px)",
+          width:     "min(calc(100vw - 2rem), 380px)",
           height:    minimized ? 56 : "min(calc(100vh - 6rem), 500px)",
           right:     "1.25rem",
-          bottom:    "1.25rem",
+          left:      "auto",
+          bottom:    "9rem",
         }}
       >
         {/* Header */}
