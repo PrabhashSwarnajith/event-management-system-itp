@@ -6,7 +6,7 @@ const API = "http://localhost:8080/api";
 
 /**
  * EventReviews — Star ratings + comment reviews for events.
- * Member 5 (Kasun) unique feature.
+ * Member 5 unique feature.
  */
 const EventReviews = ({ eventId }) => {
   const { user, authFetch } = useAuth();

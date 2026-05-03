@@ -183,7 +183,7 @@ const LiveChat = () => {
         className={`fixed z-40 flex items-center gap-2 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-2xl transition-all duration-300 ${
           open ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
         }`}
-        style={{ background: "linear-gradient(135deg, #0ea5e9, #2563eb)", bottom: "1rem", right: "1rem" }}
+        style={{ background: "linear-gradient(135deg, #0ea5e9, #2563eb)", bottom: "5.5rem", right: "1rem" }}
         aria-label="Open live chat"
         id="livechat-trigger-btn"
       >
@@ -199,19 +199,19 @@ const LiveChat = () => {
       </button>
 
       <div
-        className={`fixed z-40 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl transition-all duration-300 ${
+        className={`fixed z-40 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl transition-all duration-300 ${
           open ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
         }`}
         style={{
-          width: "min(100vw - 0.5rem, 760px)",
-          height: minimized ? 64 : "min(100vh - 2rem, 560px)",
+          width: user?.role === "ADMIN" ? "min(calc(100vw - 2rem), 700px)" : "min(calc(100vw - 2rem), 380px)",
+          height: minimized ? 56 : "min(calc(100vh - 2rem), 520px)",
           maxHeight: "calc(100vh - 2rem)",
-          right: "0.25rem",
-          bottom: "0.25rem"
+          right: "1rem",
+          bottom: "1rem"
         }}
       >
         <div className="flex h-full flex-col">
-          <div className="flex shrink-0 items-center justify-between bg-slate-900 px-3 sm:px-4 py-2 sm:py-3 text-white">
+          <div className="flex shrink-0 items-center justify-between bg-slate-900 dark:bg-slate-950 px-3 sm:px-4 py-2 sm:py-3 text-white">
             <div className="flex items-center gap-2">
               <div className="relative flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-white/10 shrink-0">
                 <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -281,7 +281,7 @@ const LiveChat = () => {
                   </div>
                 )}
 
-                <div className="flex-1 space-y-2.5 sm:space-y-3 overflow-y-auto bg-white p-2 sm:p-3">
+                <div className="flex-1 space-y-2.5 sm:space-y-3 overflow-y-auto bg-white dark:bg-slate-900 p-2 sm:p-3">
                   {messages.length === 0 && (
                     <div className="py-6 sm:py-8 text-center text-slate-400">
                       <MessageSquare className="mx-auto mb-2 h-6 w-6 sm:h-8 sm:w-8 opacity-40" />
@@ -345,7 +345,7 @@ const LiveChat = () => {
                   <div ref={messagesEndRef} />
                 </div>
 
-                <div className="border-t border-slate-200 bg-white p-2 sm:p-3">
+                <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 sm:p-3">
                   <div className="flex gap-2">
                     <input
                       ref={inputRef}
@@ -354,7 +354,7 @@ const LiveChat = () => {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKey}
                       placeholder="Type your message..."
-                      className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                      className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                       id="livechat-input"
                       maxLength={300}
                     />

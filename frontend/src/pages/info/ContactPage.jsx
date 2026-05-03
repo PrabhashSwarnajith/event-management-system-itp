@@ -1,5 +1,13 @@
-import { Mail, MessageCircle, AlertCircle, Send, MapPin, Phone, Clock, Sparkles } from "lucide-react";
+import { Mail, MessageCircle, AlertCircle, Send, MapPin, Phone, Clock, Users } from "lucide-react";
 import { useState } from "react";
+
+const supportMembers = [
+  "Prabhash Swarnajith",
+  "Shehani03",
+  "it23677296-ayesha",
+  "IT21012624",
+  "PrabhashSwarnajith",
+];
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
@@ -13,192 +21,191 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSending(true);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 900));
     setSubmitted(true);
     setFormData({ name: "", email: "", subject: "", message: "" });
     setSending(false);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      {/* Header / Hero */}
-      <section className="bg-slate-900 py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[40%] h-[100%] bg-gradient-to-l from-indigo-500/10 to-transparent pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
-            <Sparkles className="w-3 h-3" />
-            Support Center
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <section className="bg-slate-900">
+        <div className="mx-auto max-w-7xl px-6 py-16 text-center">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold uppercase tracking-wide text-cyan-200">
+            <MessageCircle className="h-3.5 w-3.5" />
+            Contact Us
           </div>
-          <h1 className="text-4xl md:text-6xl font-black text-white mb-6 animate-fade-up">
-            Let's <span className="gradient-text">Connect</span>
-          </h1>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed animate-fade-up" style={{ animationDelay: "100ms" }}>
-            Whether you have a question about events, need technical support, or just want to share some feedback—we're here to help.
+          <h1 className="text-4xl font-black text-white md:text-6xl">Student Support Portal</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-slate-300 md:text-lg">
+            Send a message about bookings, events, venues, payments, or account issues. The right member can follow up
+            from the support queue.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid lg:grid-cols-3 gap-12">
-          
-          {/* Sidebar: Info Cards */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-none animate-fade-up">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6">
-                <Mail className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Email Support</h3>
-              <p className="text-slate-500 text-sm mb-4">Direct message our support desk for official inquiries.</p>
-              <a href="mailto:support@unievents.lk" className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
-                support@unievents.lk
-              </a>
+      <div className="mx-auto grid max-w-7xl gap-8 px-6 py-14 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <aside className="space-y-4">
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-indigo-50 text-indigo-700">
+              <Mail className="h-5 w-5" />
             </div>
-
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-none animate-fade-up" style={{ animationDelay: "100ms" }}>
-              <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 mb-6">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Campus Office</h3>
-              <p className="text-slate-500 text-sm mb-4">SLIIT Malabe Campus, Block A, Level 4.</p>
-              <p className="font-bold text-slate-700 dark:text-slate-300">Mon - Fri: 8:30 AM - 5:00 PM</p>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-none animate-fade-up" style={{ animationDelay: "200ms" }}>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-6">
-                <Phone className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Call Center</h3>
-              <p className="text-slate-500 text-sm mb-4">Urgent matters? Give us a call during office hours.</p>
-              <p className="font-bold text-emerald-600 dark:text-emerald-400">+94 11 234 5678</p>
-            </div>
+            <h3 className="text-lg font-black text-slate-900 dark:text-white">Email</h3>
+            <p className="mt-2 text-sm text-slate-500">For official project and support messages.</p>
+            <a href="mailto:support@unievents.lk" className="mt-3 inline-block font-bold text-indigo-600 hover:underline">
+              support@unievents.lk
+            </a>
           </div>
 
-          {/* Main: Form Card */}
-          <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 md:p-12 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 dark:shadow-none animate-fade-up">
-              {submitted ? (
-                <div className="text-center py-16 animate-fade-in">
-                  <div className="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-6">
-                    <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                      <Send className="w-6 h-6" />
-                    </div>
-                  </div>
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Message Sent!</h3>
-                  <p className="text-slate-500 text-lg mb-10 max-w-md mx-auto">
-                    Thank you for reaching out. A UniEvents representative will get back to you within 24 hours.
-                  </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
-                    className="btn-ghost px-8 py-3 rounded-xl border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
-                  >
-                    Send Another Message
-                  </button>
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+              <MapPin className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900 dark:text-white">Campus</h3>
+            <p className="mt-2 text-sm text-slate-500">SLIIT Malabe Campus, IT faculty project workspace.</p>
+            <p className="mt-3 text-sm font-bold text-slate-700 dark:text-slate-300">Mon - Fri, 8.30 AM - 5.00 PM</p>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
+              <Phone className="h-5 w-5" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900 dark:text-white">Phone</h3>
+            <p className="mt-2 text-sm text-slate-500">Use for urgent event-day support.</p>
+            <p className="mt-3 font-bold text-amber-700">+94 11 234 5678</p>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-4 flex items-center gap-2">
+              <Users className="h-5 w-5 text-indigo-600" />
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">Team</h3>
+            </div>
+            <div className="space-y-2">
+              {supportMembers.map((member) => (
+                <p key={member} className="rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  {member}
+                </p>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <main>
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-8">
+            {submitted ? (
+              <div className="py-16 text-center">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <Send className="h-7 w-7" />
                 </div>
-              ) : (
-                <>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-8">Send Us a Message</h3>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label htmlFor="contact-name" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Full Name</label>
-                        <input
-                          id="contact-name"
-                          type="text"
-                          name="name"
-                          placeholder="E.g. Ashan Perera"
-                          className="input-field w-full h-12 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-indigo-500/10"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label htmlFor="contact-email" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Email Address</label>
-                        <input
-                          id="contact-email"
-                          type="email"
-                          name="email"
-                          placeholder="ashan@sliit.lk"
-                          className="input-field w-full h-12 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-indigo-500/10"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
-                    </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">Message sent</h3>
+                <p className="mx-auto mt-3 max-w-md text-slate-500">
+                  Thanks. Your message is ready for the UniEvents support team.
+                </p>
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="btn-ghost mt-8"
+                >
+                  Send another message
+                </button>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Send Us a Message</h2>
+                <p className="mt-2 text-sm text-slate-500">
+                  Keep it short and include a booking ID or event name if you have one.
+                </p>
 
-                    <div className="space-y-2">
-                      <label htmlFor="contact-subject" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Subject</label>
+                <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">Full Name</span>
                       <input
-                        id="contact-subject"
                         type="text"
-                        name="subject"
-                        placeholder="How can we help you?"
-                        className="input-field w-full h-12 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-indigo-500/10"
-                        value={formData.subject}
+                        name="name"
+                        placeholder="Prabhash Swarnajith"
+                        className="input-field h-12"
+                        value={formData.name}
                         onChange={handleChange}
                         required
                       />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label htmlFor="contact-message" className="text-sm font-bold text-slate-700 dark:text-slate-300 ml-1">Message</label>
-                      <textarea
-                        id="contact-message"
-                        name="message"
-                        placeholder="Describe your inquiry in detail..."
-                        className="input-field w-full h-40 bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-indigo-500/10 resize-none pt-3"
-                        value={formData.message}
+                    </label>
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">Email Address</span>
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="student@sliit.lk"
+                        className="input-field h-12"
+                        value={formData.email}
                         onChange={handleChange}
                         required
                       />
-                    </div>
+                    </label>
+                  </div>
 
-                    <div className="pt-2">
-                      <button
-                        type="submit"
-                        disabled={sending}
-                        className="btn-primary w-full h-14 text-lg font-black shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-70 cursor-pointer"
-                      >
-                        {sending ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            Send Message
-                            <Send className="w-5 h-5" />
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )}
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">Subject</span>
+                    <input
+                      type="text"
+                      name="subject"
+                      placeholder="Booking issue, event question, payment help..."
+                      className="input-field h-12"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      required
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-bold text-slate-700 dark:text-slate-300">Message</span>
+                    <textarea
+                      name="message"
+                      placeholder="Tell us what happened and what page you were using."
+                      className="input-field h-40 resize-none pt-3"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                    />
+                  </label>
+
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className="btn-primary h-12 w-full"
+                  >
+                    {sending ? (
+                      <>
+                        <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        Send Message
+                        <Send className="h-5 w-5" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="flex gap-4 rounded-lg border border-indigo-100 bg-indigo-50 p-5 text-indigo-900 dark:border-indigo-900/40 dark:bg-indigo-950/30 dark:text-indigo-200">
+              <Clock className="mt-0.5 h-5 w-5 shrink-0" />
+              <p className="text-sm">
+                <span className="mb-1 block font-bold">Response time</span>
+                Normal messages are checked within one working day.
+              </p>
             </div>
-            
-            {/* Quick Tips */}
-            <div className="mt-8 grid sm:grid-cols-2 gap-4">
-              <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/30 p-5 rounded-2xl flex gap-4">
-                <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-indigo-900 dark:text-indigo-200">
-                  <span className="font-bold block mb-1">Response Time</span>
-                  We aim to reply to all inquiries within 24 business hours.
-                </p>
-              </div>
-              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/30 p-5 rounded-2xl flex gap-4">
-                <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-900 dark:text-amber-200">
-                  <span className="font-bold block mb-1">Emergency?</span>
-                  Please use the Live Chat widget for immediate support during events.
-                </p>
-              </div>
+            <div className="flex gap-4 rounded-lg border border-amber-100 bg-amber-50 p-5 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+              <p className="text-sm">
+                <span className="mb-1 block font-bold">Need quick help?</span>
+                Open Live Support from the bottom corner during event time.
+              </p>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

@@ -161,10 +161,10 @@ const SmartHelp = () => {
           setOpen(true);
           setUnread(0);
         }}
-        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-2xl transition-all duration-300 ${
+        className={`fixed z-50 flex items-center gap-2 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-2xl transition-all duration-300 ${
           open ? "pointer-events-none scale-0 opacity-0" : "scale-100 opacity-100"
         }`}
-        style={{ background: "linear-gradient(135deg, #6366f1, #7c3aed)" }}
+        style={{ background: "linear-gradient(135deg, #6366f1, #7c3aed)", bottom: "1rem", right: "1rem" }}
         aria-label="Open help desk"
         id="chatbot-trigger-btn"
       >
@@ -180,13 +180,15 @@ const SmartHelp = () => {
       </button>
 
       <div
-        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl transition-all duration-300 ${
+        className={`fixed z-50 flex flex-col overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl transition-all duration-300 ${
           open ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
         }`}
         style={{ 
-          width: "min(100vw - 1rem, 420px)", 
-          height: minimized ? 64 : "min(100vh - 2rem, 600px)",
-          maxHeight: "calc(100vh - 2rem)"
+          width: "min(calc(100vw - 2rem), 380px)", 
+          height: minimized ? 56 : "min(calc(100vh - 2rem), 540px)",
+          maxHeight: "calc(100vh - 2rem)",
+          bottom: "1rem",
+          right: "1rem"
         }}
       >
         <div className="flex shrink-0 items-center justify-between bg-indigo-700 px-4 py-3 text-white">
@@ -233,7 +235,7 @@ const SmartHelp = () => {
 
         {!minimized && (
           <>
-            <div className="flex-1 space-y-2.5 sm:space-y-3 overflow-y-auto bg-slate-50 p-3 sm:p-4">
+            <div className="flex-1 space-y-2.5 sm:space-y-3 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-3 sm:p-4">
               {messages.map((msg, index) => (
                 <div key={index} className={`flex gap-2 sm:gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                   <div
@@ -287,7 +289,7 @@ const SmartHelp = () => {
             </div>
 
             {messages.length <= 1 && (
-              <div className="flex flex-wrap gap-1 sm:gap-1.5 border-t border-slate-100 bg-white px-2 sm:px-3 py-2">
+              <div className="flex flex-wrap gap-1 sm:gap-1.5 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 sm:px-3 py-2">
                 {SUGGESTIONS.map((suggestion) => (
                   <button
                     key={suggestion}
@@ -300,7 +302,7 @@ const SmartHelp = () => {
               </div>
             )}
 
-            <div className="flex gap-2 border-t border-slate-200 bg-white p-2 sm:p-3">
+            <div className="flex gap-2 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 sm:p-3">
               <input
                 ref={inputRef}
                 type="text"
@@ -308,7 +310,7 @@ const SmartHelp = () => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
                 placeholder="Ask about events..."
-                className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder:text-slate-400"
                 disabled={loading}
                 id="chatbot-input"
                 maxLength={500}

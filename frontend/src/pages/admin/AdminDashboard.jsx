@@ -51,12 +51,23 @@ const AdminDashboard = () => {
     adminData.loadData();
   });
 
-  const stats = useMemo(() => ({
-    users: adminData.users.length,
-    events: adminData.events.length,
-    venues: adminData.venues.length,
-    bookings: adminData.bookings.length
-  }), [adminData.users.length, adminData.events.length, adminData.venues.length, adminData.bookings.length]);
+  const stats = useMemo(() => {
+    const publishedEvents = adminData.events.filter((event) => event.status !== "DRAFT" && event.status !== "CANCELLED").length;
+    const availableVenues = adminData.venues.filter((venue) => venue.available !== false).length;
+    const confirmedBookings = adminData.bookings.filter((booking) => booking.status !== "CANCELLED").length;
+    const totalCapacity = adminData.venues.reduce((sum, venue) => sum + Number(venue.capacity || 0), 0);
+
+    return {
+      users: adminData.users.length,
+      events: adminData.events.length,
+      venues: adminData.venues.length,
+      bookings: adminData.bookings.length,
+      publishedEvents,
+      availableVenues,
+      confirmedBookings,
+      totalCapacity
+    };
+  }, [adminData.users, adminData.events, adminData.venues, adminData.bookings]);
 
   // Effects
   useEffect(() => {
@@ -189,14 +200,20 @@ const AdminDashboard = () => {
   }
 
   const sections = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard },
-    { id: "users", label: "Users", icon: Users },
-    { id: "events", label: "Events", icon: Calendar },
-    { id: "venues", label: "Venues", icon: Building2 },
-    { id: "bookings", label: "Bookings", icon: Ticket },
-    { id: "reports", label: "Reports", icon: FileText },
-    { id: "livechat", label: "Live Support", icon: MessageCircle, badge: true },
+    { id: "overview", label: "Overview", icon: LayoutDashboard, description: "Charts, quick stats, and recent records for project review." },
+    { id: "users", label: "Users", icon: Users, description: "Admin CRUD for student accounts, roles, and login access." },
+    { id: "events", label: "Events", icon: Calendar, description: "Create, edit, publish, and remove campus event records." },
+    { id: "venues", label: "Venues", icon: Building2, description: "Manage venue capacity, availability, amenities, and review-ready data." },
+    { id: "bookings", label: "Bookings", icon: Ticket, description: "Create admin bookings, cancel reservations, and check ticket counts." },
+    { id: "reports", label: "Reports", icon: FileText, description: "Download CSV reports for users, events, venues, bookings, and summary metrics." },
+    { id: "livechat", label: "Live Support", icon: MessageCircle, description: "Monitor live support messages from students.", badge: true },
   ];
+  const activeSection = sections.find((section) => section.id === active) || sections[0];
+  const dataNotice = adminData.error
+    ? `Backend data could not be loaded (${adminData.error}). Showing sample rows so the dashboard can still be reviewed.`
+    : adminData.usingSampleData
+      ? "Showing frontend sample rows because the database is empty."
+      : "";
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -251,21 +268,29 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <main className="min-w-0 p-4 sm:p-6 lg:p-8">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-black text-slate-900">System Administration</h1>
-              <p className="mt-1 text-sm text-slate-500">Tables and actions for the whole event system.</p>
+          <div className="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="mb-1 text-xs font-black uppercase tracking-wide text-indigo-600">Admin Dashboard</p>
+                <h1 className="text-3xl font-black text-slate-900">{activeSection.label}</h1>
+                <p className="mt-1 max-w-2xl text-sm text-slate-500">{activeSection.description}</p>
+              </div>
+              <button onClick={adminData.loadData} className="btn-ghost bg-white cursor-pointer">
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </button>
             </div>
-            <button onClick={adminData.loadData} className="btn-ghost bg-white cursor-pointer">
-              <RefreshCw className="h-4 w-4" />
-              Refresh
-            </button>
           </div>
 
           {/* Info Banner */}
-          {adminData.usingSampleData && !adminData.loading && (
-            <div className="mb-5 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700">
-              Showing frontend sample rows because the database is empty.
+          {dataNotice && !adminData.loading && (
+            <div
+              className={`mb-5 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-semibold ${
+                adminData.error ? "border-amber-200 bg-amber-50 text-amber-800" : "border-blue-200 bg-blue-50 text-blue-700"
+              }`}
+            >
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{dataNotice}</span>
             </div>
           )}
 
@@ -301,10 +326,38 @@ const AdminDashboard = () => {
             <>
               {/* Stats Grid */}
               <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard label="Users" value={stats.users} icon={Users} onClick={() => setActive("users")} />
-                <StatCard label="Events" value={stats.events} icon={Calendar} onClick={() => setActive("events")} />
-                <StatCard label="Venues" value={stats.venues} icon={Building2} onClick={() => setActive("venues")} />
-                <StatCard label="Bookings" value={stats.bookings} icon={Ticket} onClick={() => setActive("bookings")} />
+                <StatCard
+                  label="Users"
+                  value={stats.users}
+                  description="Registered accounts"
+                  icon={Users}
+                  tone="indigo"
+                  onClick={() => setActive("users")}
+                />
+                <StatCard
+                  label="Events"
+                  value={stats.events}
+                  description={`${stats.publishedEvents} published`}
+                  icon={Calendar}
+                  tone="cyan"
+                  onClick={() => setActive("events")}
+                />
+                <StatCard
+                  label="Venues"
+                  value={stats.venues}
+                  description={`${stats.availableVenues} available / ${stats.totalCapacity} seats`}
+                  icon={Building2}
+                  tone="emerald"
+                  onClick={() => setActive("venues")}
+                />
+                <StatCard
+                  label="Bookings"
+                  value={stats.bookings}
+                  description={`${stats.confirmedBookings} confirmed`}
+                  icon={Ticket}
+                  tone="amber"
+                  onClick={() => setActive("bookings")}
+                />
               </div>
 
               {/* Sections */}
@@ -421,20 +474,30 @@ const AdminDashboard = () => {
 };
 
 // Stat Card Component
-const StatCard = ({ label, value, icon: Icon, onClick }) => (
-  <button
-    onClick={onClick}
-    className="rounded-lg border border-slate-200 bg-white p-5 text-left transition hover:border-slate-300 hover:shadow-sm cursor-pointer"
-  >
-    <div className="mb-4 flex items-center justify-between">
-      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-        <Icon className="h-5 w-5" />
+const StatCard = ({ label, value, description, icon: Icon, tone, onClick }) => {
+  const tones = {
+    indigo: "bg-indigo-50 text-indigo-600 border-indigo-100",
+    cyan: "bg-cyan-50 text-cyan-700 border-cyan-100",
+    emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    amber: "bg-amber-50 text-amber-700 border-amber-100"
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-lg border border-slate-200 bg-white p-5 text-left transition hover:border-slate-300 hover:shadow-sm cursor-pointer"
+    >
+      <div className="mb-4 flex items-center justify-between">
+        <div className={`flex h-11 w-11 items-center justify-center rounded-lg border ${tones[tone] || tones.indigo}`}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <span className="text-xs font-bold uppercase text-slate-400">Open</span>
       </div>
-      <span className="text-xs font-bold uppercase text-slate-400">Open</span>
-    </div>
-    <p className="text-sm font-semibold text-slate-500">{label}</p>
-    <p className="text-3xl font-black text-slate-900">{value}</p>
-  </button>
-);
+      <p className="text-sm font-semibold text-slate-500">{label}</p>
+      <p className="text-3xl font-black text-slate-900">{value}</p>
+      <p className="mt-1 text-xs font-semibold text-slate-400">{description}</p>
+    </button>
+  );
+};
 
 export default AdminDashboard;

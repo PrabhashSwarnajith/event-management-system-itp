@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Calendar, LayoutDashboard, LogOut, Ticket, User } from "lucide-react";
+import { Calendar, LogOut, Ticket, User } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const AccountLayout = ({ children }) => {
@@ -44,12 +44,6 @@ const AccountLayout = ({ children }) => {
                 <Calendar className="w-4 h-4 flex-shrink-0" />
                 <span>Browse Events</span>
               </Link>
-              {user?.role === "ADMIN" && (
-                <Link to="/dashboard" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900">
-                  <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
-                  <span>Admin Dashboard</span>
-                </Link>
-              )}
             </nav>
 
             <div className="border-t border-slate-100 mt-4 pt-4">

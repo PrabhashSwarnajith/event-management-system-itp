@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
-import { Calendar, MapPin, User, LayoutDashboard, Home, Menu, X, LogOut, ChevronDown, Sparkles, Ticket, Moon, Sun } from "lucide-react";
+import { Calendar, MapPin, User, Home, Menu, X, LogOut, ChevronDown, Sparkles, Ticket, Moon, Sun, Mail, MessageCircle } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ import FAQPage from "./pages/info/FAQPage";
 import ContactPage from "./pages/info/ContactPage";
 import TermsPage from "./pages/info/TermsPage";
 import PrivacyPage from "./pages/info/PrivacyPage";
-import AIChatbot from "./components/chat/AIChatbot";
+import SmartHelp from "./components/chat/SmartHelp";
 import LiveChat from "./components/chat/LiveChat";
 import EventCountdown from "./components/events/EventCountdown";
 
@@ -94,11 +94,6 @@ const Navigation = () => {
                 <Ticket className="w-4 h-4" /> My Bookings
               </NavLink>
             )}
-            {user?.role === "ADMIN" && (
-              <NavLink to="/dashboard" className={navLinkClass}>
-                <LayoutDashboard className="w-4 h-4" /> Admin
-              </NavLink>
-            )}
           </nav>
 
           {/* Desktop user area */}
@@ -145,15 +140,6 @@ const Navigation = () => {
                       >
                         <Ticket className="w-4 h-4" /> My Bookings
                       </Link>
-                      {user.role === "ADMIN" && (
-                        <Link
-                          to="/dashboard"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition-all duration-200"
-                          role="menuitem"
-                        >
-                          <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
-                        </Link>
-                      )}
                       <div className="h-px bg-slate-100 dark:bg-slate-800 my-1 mx-2" />
                       <button
                         onClick={handleLogout}
@@ -191,13 +177,12 @@ const Navigation = () => {
           <NavLink to="/events" className={navLinkClass}><Calendar className="w-4 h-4" /> Events</NavLink>
           <NavLink to="/venues" className={navLinkClass}><MapPin className="w-4 h-4" /> Venues</NavLink>
           {user && <NavLink to="/bookings" className={navLinkClass}><Ticket className="w-4 h-4" /> My Bookings</NavLink>}
-          {user?.role === "ADMIN" && <NavLink to="/dashboard" className={navLinkClass}><LayoutDashboard className="w-4 h-4" /> Admin</NavLink>}
 
           <div className="pt-3 border-t border-slate-100 mt-2">
             {user ? (
               <div className="space-y-1">
                 <div className="px-3 py-2 text-sm font-semibold text-slate-700">
-                  {user.name} · <span className="text-slate-400 text-xs">{user.role}</span>
+                  {user.name} - <span className="text-slate-400 text-xs">{user.role}</span>
                 </div>
                 <Link to="/profile" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
                   <User className="w-4 h-4" /> Profile
@@ -238,7 +223,7 @@ const Footer = () => (
             Empowering the next generation of campus organizers. Discover, book, and enjoy the best events SLIIT has to offer with our seamless management platform.
           </p>
           <div className="flex flex-wrap gap-2">
-            {["Dilhani", "Ashan", "Kasun", "ITP 2026"].map((tag) => (
+            {["Prabhash", "Shehani03", "Ayesha", "IT21012624", "ITP 2026"].map((tag) => (
               <span key={tag} className="text-[10px] font-black uppercase tracking-widest bg-slate-800 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-700/50">
                 {tag}
               </span>
@@ -269,9 +254,9 @@ const Footer = () => (
             </li>
             <li className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0">
-                <LayoutDashboard className="w-4 h-4 text-slate-400" />
+                <MessageCircle className="w-4 h-4 text-slate-400" />
               </div>
-              <Link to="/dashboard" className="hover:text-white transition">Staff Portal</Link>
+              <Link to="/contact" className="hover:text-white transition">Contact team</Link>
             </li>
           </ul>
         </div>
@@ -280,13 +265,13 @@ const Footer = () => (
       {/* Bottom Bar */}
       <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-xs font-medium text-slate-500">
-          © {new Date().getFullYear()} UniEvents Management System. All rights reserved.
+          Copyright {new Date().getFullYear()} UniEvents Management System. All rights reserved.
         </p>
         <div className="flex items-center gap-6">
-          <Link to="/faq" className="text-xs text-slate-500 hover:text-indigo-400 transition">Terms</Link>
-          <Link to="/faq" className="text-xs text-slate-500 hover:text-indigo-400 transition">Privacy</Link>
+          <Link to="/terms" className="text-xs text-slate-500 hover:text-indigo-400 transition">Terms</Link>
+          <Link to="/privacy" className="text-xs text-slate-500 hover:text-indigo-400 transition">Privacy</Link>
           <div className="w-px h-4 bg-slate-800" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Built by IT21 Group</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">ITP student project</p>
         </div>
       </div>
     </div>
@@ -325,7 +310,7 @@ const AppShell = () => {
       {/* Global widgets */}
       {!isAdminDashboard && (
         <>
-          <AIChatbot />
+          <SmartHelp />
           <LiveChat />
           <EventCountdown />
         </>

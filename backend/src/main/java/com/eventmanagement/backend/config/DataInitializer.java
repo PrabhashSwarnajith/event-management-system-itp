@@ -15,11 +15,11 @@ import java.util.List;
  * for all 5 team member modules on application startup.
  *
  * Team members:
- *  1. Prabhash  — System Admin / User Management / Reports
- *  2. Ashan     — Event Management + QR Tickets
- *  3. Dilhani   — Venue Management + Map View
- *  4. Ruwan     — Booking & Payments + Timeline
- *  5. Kasun     — Reviews & Ratings + Analytics
+ *  1. Prabhash Swarnajith - Accounts, auth, reports
+ *  2. Shehani03 - FAQ, help desk, about page
+ *  3. it23677296-ayesha - Events, contact page, support flow
+ *  4. IT21012624 - Bookings, payments, QR tickets
+ *  5. PrabhashSwarnajith - Venues, reviews, dark mode, legal pages
  */
 @Component
 @RequiredArgsConstructor
@@ -54,48 +54,48 @@ public class DataInitializer implements CommandLineRunner {
             return userRepository.save(u);
         });
 
-        // Member 2 — Event manager (Ashan)
-        userRepository.findByEmail("ashan@unievents.lk").orElseGet(() -> {
+        // Member 2 - Smart support
+        userRepository.findByEmail("shehani03@unievents.lk").orElseGet(() -> {
             User u = new User();
-            u.setName("Ashan Perera");
-            u.setEmail("ashan@unievents.lk");
-            u.setPassword(BCrypt.hashpw("Ashan@12345", BCrypt.gensalt()));
+            u.setName("Shehani03");
+            u.setEmail("shehani03@unievents.lk");
+            u.setPassword(BCrypt.hashpw("Student@12345", BCrypt.gensalt()));
             u.setRole("ATTENDEE");
             u.setStudentId("IT21002");
             u.setDepartment("Computer Science");
             return userRepository.save(u);
         });
 
-        // Member 3 — Venue manager (Dilhani)
-        userRepository.findByEmail("dilhani@unievents.lk").orElseGet(() -> {
+        // Member 3 - Event operations
+        userRepository.findByEmail("ayesha@unievents.lk").orElseGet(() -> {
             User u = new User();
-            u.setName("Dilhani Fernando");
-            u.setEmail("dilhani@unievents.lk");
-            u.setPassword(BCrypt.hashpw("Dilhani@12345", BCrypt.gensalt()));
+            u.setName("it23677296-ayesha");
+            u.setEmail("ayesha@unievents.lk");
+            u.setPassword(BCrypt.hashpw("Student@12345", BCrypt.gensalt()));
             u.setRole("ATTENDEE");
             u.setStudentId("IT21003");
             u.setDepartment("Software Engineering");
             return userRepository.save(u);
         });
 
-        // Member 4 — Booking manager (Ruwan)
-        userRepository.findByEmail("ruwan@unievents.lk").orElseGet(() -> {
+        // Member 4 - Bookings and payments
+        userRepository.findByEmail("it21012624@unievents.lk").orElseGet(() -> {
             User u = new User();
-            u.setName("Ruwan Bandara");
-            u.setEmail("ruwan@unievents.lk");
-            u.setPassword(BCrypt.hashpw("Ruwan@12345", BCrypt.gensalt()));
+            u.setName("IT21012624");
+            u.setEmail("it21012624@unievents.lk");
+            u.setPassword(BCrypt.hashpw("Student@12345", BCrypt.gensalt()));
             u.setRole("ATTENDEE");
             u.setStudentId("IT21004");
             u.setDepartment("Information Systems");
             return userRepository.save(u);
         });
 
-        // Member 5 — Reviews (Kasun)
-        userRepository.findByEmail("kasun@unievents.lk").orElseGet(() -> {
+        // Member 5 - Venues and reviews
+        userRepository.findByEmail("prabhashswarnajith@unievents.lk").orElseGet(() -> {
             User u = new User();
-            u.setName("Kasun Rajapaksa");
-            u.setEmail("kasun@unievents.lk");
-            u.setPassword(BCrypt.hashpw("Kasun@12345", BCrypt.gensalt()));
+            u.setName("PrabhashSwarnajith");
+            u.setEmail("prabhashswarnajith@unievents.lk");
+            u.setPassword(BCrypt.hashpw("Student@12345", BCrypt.gensalt()));
             u.setRole("ATTENDEE");
             u.setStudentId("IT21005");
             u.setDepartment("Computer Engineering");
@@ -130,7 +130,7 @@ public class DataInitializer implements CommandLineRunner {
 
         User admin = userRepository.findByEmail("admin@unievents.lk").orElseThrow();
 
-        // ── Venues (Member 3 — Dilhani) ───────────────────────────────────────
+        // Venues
         Venue v1 = saveVenue("Main Auditorium",
                 "Building A, Ground Floor", 500,
                 "Large hall for main university events, guest lectures, and convocation ceremonies.",
@@ -161,7 +161,7 @@ public class DataInitializer implements CommandLineRunner {
                 "Conference Table, Projector, Video Conferencing, Whiteboard, AC",
                 "https://images.unsplash.com/photo-1582653291997-079a1c04e5a1?auto=format&fit=crop&w=800&q=80");
 
-        // ── Events (Member 2 — Ashan) ─────────────────────────────────────────
+        // Events
         if (eventRepository.count() > 0) return;
 
         saveEvent("Welcome Freshman Orientation 2025",
@@ -184,8 +184,8 @@ public class DataInitializer implements CommandLineRunner {
                 v4, "Cultural", LocalDateTime.now().plusDays(20), 250, admin, "PUBLISHED",
                 "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80");
 
-        saveEvent("AI & Machine Learning Symposium",
-                "Industry experts present the latest trends in AI, deep learning, and NLP. Includes live demos and Q&A. Open to all IT students.",
+        saveEvent("Machine Learning Symposium",
+                "Industry experts present trends in machine learning, data science, and NLP. Includes live demos and Q&A. Open to all IT students.",
                 v1, "Academic", LocalDateTime.now().plusDays(8), 450, admin, "PUBLISHED",
                 "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?auto=format&fit=crop&w=800&q=80");
 
@@ -243,7 +243,7 @@ public class DataInitializer implements CommandLineRunner {
         eventRepository.save(e);
     }
 
-    // ─── Bookings (Member 4 — Ruwan) ─────────────────────────────────────────────
+    // Bookings
 
     private void seedBookings() {
         if (bookingRepository.count() > 0) return;
@@ -284,7 +284,7 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    // ─── Reviews (Member 5 — Kasun) ──────────────────────────────────────────────
+    // Reviews
 
     private void seedReviews() {
         if (reviewRepository.count() > 0) return;
@@ -301,7 +301,7 @@ public class DataInitializer implements CommandLineRunner {
             {"Great workshop, learned so much about React hooks and Spring Security.", "5"},
             {"Very fun meetup! The watch party atmosphere was amazing.", "4"},
             {"Cultural night was breathtaking. The dance performances were incredible.", "5"},
-            {"AI symposium was eye-opening. The NLP demo was my favourite part.", "4"},
+            {"Machine learning symposium was eye-opening. The NLP demo was my favourite part.", "4"},
             {"Pitch competition was intense but fair. Judges gave great feedback.", "4"},
             {"The CTF challenges were really well designed. Learned a lot about SQL injection.", "5"},
             {"Beautiful sunset photos. The club members were super welcoming!", "4"},

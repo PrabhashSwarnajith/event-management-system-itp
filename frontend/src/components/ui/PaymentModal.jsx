@@ -5,7 +5,7 @@ const API = "http://localhost:8080/api";
 
 /**
  * PaymentModal — Stripe-like payment gateway UI.
- * Member 4 (Ruwan) unique feature: Simulated card payment flow.
+ * Member 4 feature: simulated card payment flow.
  */
 const PaymentModal = ({ booking, amount, onSuccess, onClose, authFetch }) => {
   const [step, setStep] = useState("form"); // form | processing | success | error

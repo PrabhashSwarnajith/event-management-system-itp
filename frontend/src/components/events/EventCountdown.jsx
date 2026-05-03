@@ -4,7 +4,7 @@ import { Timer, X, ChevronDown, Bell, Calendar } from "lucide-react";
 /**
  * EventCountdown — Special Feature: Live countdown timer widget.
  * Shows countdown to the nearest upcoming event fetched from the API.
- * Member 1 (Ashan) special feature.
+ * Member 5 special feature.
  */
 
 const API = "http://localhost:8080/api";

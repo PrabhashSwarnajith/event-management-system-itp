@@ -7,10 +7,10 @@ const API = "http://localhost:8080";
 
 // Google OAuth Simulation — Realistic-looking popup with SLIIT student accounts
 const GOOGLE_DEMO_ACCOUNTS = [
-  { email: "ashan@unievents.lk", name: "Ashan Perera", dept: "Information Technology", initials: "AP", color: "#6366f1" },
-  { email: "dilhani@unievents.lk", name: "Dilhani Fernando", dept: "Software Engineering", initials: "DF", color: "#0ea5e9" },
-  { email: "kasun@unievents.lk", name: "Kasun Rajapaksa", dept: "Computer Science", initials: "KR", color: "#059669" },
-  { email: "admin@unievents.lk", name: "Admin User", dept: "Administrator", initials: "AU", color: "#dc2626" },
+  { email: "shehani03@unievents.lk", name: "Shehani03", dept: "Software Engineering", initials: "S3", color: "#6366f1" },
+  { email: "ayesha@unievents.lk", name: "it23677296-ayesha", dept: "Information Technology", initials: "IA", color: "#0ea5e9" },
+  { email: "it21012624@unievents.lk", name: "IT21012624", dept: "Information Systems", initials: "IT", color: "#059669" },
+  { email: "prabhashswarnajith@unievents.lk", name: "PrabhashSwarnajith", dept: "Computer Science", initials: "PS", color: "#f59e0b" },
 ];
 
 const simulateGoogleLogin = () => {
@@ -178,10 +178,10 @@ const AuthPage = () => {
 
       // Determine password based on account (demo accounts have predictable passwords)
       const passwordMap = {
-        "admin@unievents.lk": "Admin@12345",
-        "ashan@unievents.lk": "Ashan@12345",
-        "dilhani@unievents.lk": "Student@12345",
-        "kasun@unievents.lk": "Student@12345",
+        "shehani03@unievents.lk": "Student@12345",
+        "ayesha@unievents.lk": "Student@12345",
+        "it21012624@unievents.lk": "Student@12345",
+        "prabhashswarnajith@unievents.lk": "Student@12345",
       };
       const password = passwordMap[googleUser.email] || "Student@12345";
 
@@ -402,9 +402,8 @@ const AuthPage = () => {
           {/* Demo credentials hint */}
           {isLogin && (
             <div className="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600">
-              <p className="font-bold text-slate-700 mb-1">Demo Credentials:</p>
-              <p>🔑 Admin: <strong>admin@unievents.lk</strong> / <strong>Admin@12345</strong></p>
-              <p>👤 Student: <strong>ashan@unievents.lk</strong> / <strong>Ashan@12345</strong></p>
+              <p className="font-bold text-slate-700 mb-1">Demo student login:</p>
+              <p><strong>shehani03@unievents.lk</strong> / <strong>Student@12345</strong></p>
             </div>
           )}
 
@@ -423,7 +422,7 @@ const AuthPage = () => {
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-4">
-          UniEvents — University Event Management System · ITP Group Project
+          UniEvents - University Event Management System - ITP Group Project
         </p>
       </div>
     </div>

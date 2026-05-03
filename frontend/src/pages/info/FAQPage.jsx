@@ -164,12 +164,12 @@ const FAQPage = () => {
             <Link to="/contact" className="bg-white text-indigo-700 px-8 py-4 rounded-xl font-black hover:bg-indigo-50 transition shadow-xl shadow-slate-900/20">
               Contact Support
             </Link>
-            <button 
+            <button
               onClick={() => document.getElementById('chatbot-trigger-btn')?.click()}
               className="bg-indigo-500 px-8 py-4 rounded-xl font-black hover:bg-indigo-400 transition flex items-center justify-center gap-2"
             >
               <Sparkles className="w-4 h-4" />
-              Ask UniEvents AI
+              Ask Help Desk
             </button>
           </div>
         </div>
