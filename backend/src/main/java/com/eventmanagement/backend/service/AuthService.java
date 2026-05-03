@@ -11,6 +11,8 @@ import com.eventmanagement.backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,11 +43,34 @@ public class AuthService {
         user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
         user.setStudentId(request.getStudentId());
         user.setDepartment(request.getDepartment());
-        
-        // Default to ATTENDEE if no role is provided
         user.setRole(request.getRole() != null ? request.getRole() : "ATTENDEE");
 
         userRepository.save(user);
+        return buildAuthResponse(user);
+    }
+
+    /**
+     * Google OAuth login: find existing user by email or auto-register them.
+     * Called after the frontend verifies the Google token and retrieves the profile.
+     */
+    public AuthResponse googleLogin(Map<String, String> profile) {
+        String email   = profile.get("email");
+        String name    = profile.getOrDefault("name", email.split("@")[0]);
+
+        if (email == null || email.isBlank()) {
+            throw new AuthException("Google account email is required");
+        }
+
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            // First-time Google login — auto-register the user
+            User newUser = new User();
+            newUser.setName(name);
+            newUser.setEmail(email);
+            // Set a random secure password (user cannot log in via password)
+            newUser.setPassword(BCrypt.hashpw(UUID.randomUUID().toString(), BCrypt.gensalt()));
+            newUser.setRole("ATTENDEE");
+            return userRepository.save(newUser);
+        });
 
         return buildAuthResponse(user);
     }

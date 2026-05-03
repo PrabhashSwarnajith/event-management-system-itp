@@ -1,30 +1,10 @@
-import { Download, BarChart3, Users, Calendar, Building2, Ticket } from "lucide-react";
+import { BarChart3, Users, Calendar, Building2, Ticket } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from "recharts";
-import { UsersOverviewTable, EventsOverviewTable, VenuesOverviewTable, BookingsOverviewTable } from "../tables/AdminTables";
-import { exportUsersCSV, exportEventsCSV, exportVenuesCSV, exportBookingsCSV } from "../../../utils/adminUtils";
 
 const COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
-
-const Panel = ({ title, action, exportAction, children }) => (
-  <div className="rounded-lg border border-slate-200 bg-white">
-    <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-      <h2 className="text-lg font-black text-slate-900">{title}</h2>
-      <div className="flex items-center gap-2">
-        {exportAction && (
-          <button onClick={exportAction} className="btn-ghost h-9 px-3 text-sm cursor-pointer bg-white border border-slate-200">
-            <Download className="h-4 w-4" />
-            Export CSV
-          </button>
-        )}
-        {action}
-      </div>
-    </div>
-    <div className="p-5">{children}</div>
-  </div>
-);
 
 export const OverviewSection = ({ users, events, venues, bookings }) => {
   // Prepare chart data — bookings per event (top 6)
@@ -61,27 +41,55 @@ export const OverviewSection = ({ users, events, venues, bookings }) => {
     <section className="space-y-5">
       {/* Charts row */}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        {/* Bookings per Event Bar Chart */}
-        <div className="rounded-lg border border-slate-200 bg-white p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-5 w-5 text-indigo-600" />
-            <h2 className="text-lg font-black text-slate-900">Bookings per Event</h2>
+        {/* Bookings per Event Bar Chart - Enhanced */}
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+              <BarChart3 className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white">Bookings per Event</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Top {bookingsByEvent.length} events by bookings</p>
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={bookingsByEvent} margin={{ top: 0, right: 0, left: -20, bottom: 40 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart 
+              data={bookingsByEvent} 
+              margin={{ top: 20, right: 30, left: -10, bottom: 50 }}
+            >
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                stroke="#e2e8f0"
+                style={{ opacity: 0.5 }}
+              />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 10, fill: "#94a3b8" }}
-                angle={-35}
+                tick={{ fontSize: 11, fill: "#64748b" }}
+                angle={-40}
                 textAnchor="end"
+                height={100}
                 interval={0}
               />
-              <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
-              <Tooltip
-                contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12 }}
+              <YAxis 
+                tick={{ fontSize: 11, fill: "#64748b" }}
+                width={40}
               />
-              <Bar dataKey="bookings" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Tooltip
+                contentStyle={{ 
+                  borderRadius: 12, 
+                  border: "1px solid #e2e8f0", 
+                  fontSize: 12,
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+                }}
+                cursor={{ fill: "rgba(99, 102, 241, 0.05)" }}
+              />
+              <Bar 
+                dataKey="bookings" 
+                fill="#6366f1" 
+                radius={[8, 8, 0, 0]}
+                animationDuration={800}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -89,70 +97,94 @@ export const OverviewSection = ({ users, events, venues, bookings }) => {
         {/* Pie charts row */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 xl:grid-cols-1 xl:gap-3">
           {/* Category Pie */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <h3 className="text-sm font-black text-slate-700 mb-3 flex items-center gap-1.5">
-              <Calendar className="h-4 w-4 text-indigo-500" /> Events by Category
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
+            <h3 className="text-sm font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+                <Calendar className="h-4 w-4" />
+              </div>
+              Events by Category
             </h3>
-            <ResponsiveContainer width="100%" height={120}>
+            <ResponsiveContainer width="100%" height={150}>
               <PieChart>
-                <Pie data={categoryData} cx="50%" cy="50%" outerRadius={50} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={10}>
+                <Pie 
+                  data={categoryData} 
+                  cx="50%" 
+                  cy="50%" 
+                  outerRadius={55} 
+                  dataKey="value" 
+                  label={({ name, percent }) => `${name}\n${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                  fontSize={10}
+                >
                   {categoryData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 10, fontSize: 11 }} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: 10, fontSize: 11, border: "1px solid #e2e8f0" }} 
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
           {/* Booking Status Pie */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <h3 className="text-sm font-black text-slate-700 mb-3 flex items-center gap-1.5">
-              <Ticket className="h-4 w-4 text-emerald-500" /> Booking Status
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
+            <h3 className="text-sm font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+                <Ticket className="h-4 w-4" />
+              </div>
+              Booking Status
             </h3>
-            <ResponsiveContainer width="100%" height={120}>
+            <ResponsiveContainer width="100%" height={150}>
               <PieChart>
-                <Pie data={statusData} cx="50%" cy="50%" outerRadius={50} dataKey="value">
+                <Pie 
+                  data={statusData} 
+                  cx="50%" 
+                  cy="50%" 
+                  outerRadius={55} 
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}\n${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                  fontSize={10}
+                >
                   <Cell fill="#10b981" />
                   <Cell fill="#ef4444" />
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 10, fontSize: 11 }} />
-                <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: 10, fontSize: 11, border: "1px solid #e2e8f0" }} 
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
           {/* User Roles Pie */}
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <h3 className="text-sm font-black text-slate-700 mb-3 flex items-center gap-1.5">
-              <Users className="h-4 w-4 text-violet-500" /> User Roles
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
+            <h3 className="text-sm font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400">
+                <Users className="h-4 w-4" />
+              </div>
+              User Roles
             </h3>
-            <ResponsiveContainer width="100%" height={120}>
+            <ResponsiveContainer width="100%" height={150}>
               <PieChart>
-                <Pie data={roleData} cx="50%" cy="50%" outerRadius={50} dataKey="value">
+                <Pie 
+                  data={roleData} 
+                  cx="50%" 
+                  cy="50%" 
+                  outerRadius={55} 
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}\n${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                  fontSize={10}
+                >
                   <Cell fill="#6366f1" />
                   <Cell fill="#8b5cf6" />
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 10, fontSize: 11 }} />
-                <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: 10, fontSize: 11, border: "1px solid #e2e8f0" }} 
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
-
-      {/* Data tables */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <Panel title="Users Overview" exportAction={() => exportUsersCSV(users)}>
-          <UsersOverviewTable rows={users.slice(0, 5)} />
-        </Panel>
-        <Panel title="Events Overview" exportAction={() => exportEventsCSV(events)}>
-          <EventsOverviewTable rows={events.slice(0, 5)} />
-        </Panel>
-        <Panel title="Venues Overview" exportAction={() => exportVenuesCSV(venues)}>
-          <VenuesOverviewTable rows={venues.slice(0, 5)} />
-        </Panel>
-        <Panel title="Bookings Overview" exportAction={() => exportBookingsCSV(bookings, users, events)}>
-          <BookingsOverviewTable rows={bookings.slice(0, 5)} />
-        </Panel>
       </div>
     </section>
   );

@@ -2,118 +2,10 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { User, Lock, Mail, Sparkles, Eye, EyeOff, GraduationCap, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const API = "http://localhost:8080";
 
-// ─── Google OAuth Simulation ──────────────────────────────────────────────────
-const GOOGLE_DEMO_ACCOUNTS = [
-  { email: "shehani03@unievents.lk", name: "Shehani03", dept: "Software Engineering", initials: "S3", color: "#6366f1" },
-  { email: "ayesha@unievents.lk", name: "it23677296-ayesha", dept: "Information Technology", initials: "IA", color: "#0ea5e9" },
-  { email: "it21012624@unievents.lk", name: "IT21012624", dept: "Information Systems", initials: "IT", color: "#059669" },
-  { email: "prabhashswarnajith@unievents.lk", name: "PrabhashSwarnajith", dept: "Computer Science", initials: "PS", color: "#f59e0b" },
-];
-
-const simulateGoogleLogin = () =>
-  new Promise((resolve) => {
-    const popup = window.open("", "google-auth", "width=480,height=580,left=200,top=100");
-    if (popup) {
-      popup.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Sign in - Google Accounts</title>
-            <meta charset="UTF-8">
-            <style>
-              * { box-sizing: border-box; margin: 0; padding: 0; }
-              body {
-                font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
-                background: #f8f9fa;
-                display: flex; align-items: center; justify-content: center;
-                min-height: 100vh; padding: 20px;
-              }
-              .card {
-                background: white; border-radius: 28px; padding: 40px 32px;
-                width: 100%; max-width: 420px;
-                box-shadow: 0 2px 6px 2px rgba(60,64,67,.15), 0 1px 2px rgba(60,64,67,.3);
-              }
-              .google-logo { display: flex; justify-content: center; margin-bottom: 24px; }
-              .google-logo svg { width: 75px; height: 24px; }
-              h1 { color: #202124; font-size: 24px; font-weight: 400; text-align: center; margin-bottom: 8px; }
-              .subtitle { color: #5f6368; font-size: 16px; text-align: center; margin-bottom: 28px; }
-              .account-list { list-style: none; }
-              .account-item {
-                display: flex; align-items: center; gap: 16px;
-                padding: 14px 16px; border-radius: 12px;
-                cursor: pointer; transition: background 0.15s;
-                margin-bottom: 4px;
-              }
-              .account-item:hover { background: #f8f9fa; }
-              .avatar {
-                width: 44px; height: 44px; border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                color: white; font-weight: 700; font-size: 16px;
-                flex-shrink: 0;
-              }
-              .account-info { flex: 1; min-width: 0; }
-              .account-name { color: #202124; font-size: 15px; font-weight: 500; }
-              .account-email { color: #5f6368; font-size: 13px; margin-top: 2px; }
-              .account-dept { color: #1a73e8; font-size: 11px; margin-top: 2px; font-weight: 500; }
-              .divider { height: 1px; background: #e8eaed; margin: 20px 0; }
-              .footer { text-align: center; }
-              .footer p { color: #5f6368; font-size: 12px; line-height: 1.5; }
-              .footer a { color: #1a73e8; text-decoration: none; }
-            </style>
-          </head>
-          <body>
-            <div class="card">
-              <div class="google-logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 272 92">
-                  <path d="M115.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18C71.25 34.32 81.24 25 93.5 25s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44S80.99 39.2 80.99 47.18c0 7.9 5.79 13.44 12.51 13.44s12.51-5.55 12.51-13.44z" fill="#EA4335"/>
-                  <path d="M163.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18c0-12.85 9.99-22.18 22.25-22.18s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44s-12.51 5.46-12.51 13.44c0 7.9 5.79 13.44 12.51 13.44s12.51-5.55 12.51-13.44z" fill="#FBBC05"/>
-                  <path d="M225 3v65h-9.5V3h9.5z" fill="#34A853"/>
-                  <path d="M35.29 41.41V32H67c.31 1.64.47 3.58.47 5.68 0 7.06-1.93 15.79-8.15 22.01-6.05 6.3-13.78 9.66-24.02 9.66C16.32 69.35.36 53.89.36 34.46.36 15.03 16.32-.5 35.29-.5c10.49 0 17.96 4.12 23.54 9.41l-6.62 6.62c-4.01-3.78-9.44-6.72-16.92-6.72-13.86 0-24.7 11.17-24.7 25.03 0 13.86 10.84 25.03 24.7 25.03 8.99 0 14.11-3.61 17.39-6.89 2.66-2.66 4.41-6.46 5.1-11.65l-22.49.08z" fill="#4285F4"/>
-                </svg>
-              </div>
-              <h1>Sign in</h1>
-              <p class="subtitle">Choose a UniEvents account</p>
-              <ul class="account-list">
-                ${GOOGLE_DEMO_ACCOUNTS.map(a => `
-                  <li class="account-item" onclick="selectUser('${a.email}','${a.name}')">
-                    <div class="avatar" style="background:${a.color}">${a.initials}</div>
-                    <div class="account-info">
-                      <div class="account-name">${a.name}</div>
-                      <div class="account-email">${a.email}</div>
-                      <div class="account-dept">${a.dept}</div>
-                    </div>
-                    <span style="color:#5f6368">›</span>
-                  </li>
-                `).join("")}
-              </ul>
-              <div class="divider"></div>
-              <div class="footer">
-                <p><a href="#">Privacy Policy</a> · <a href="#">Terms of Service</a></p>
-                <p style="margin-top:8px">UniEvents · SLIIT ITP Demo</p>
-              </div>
-            </div>
-            <script>
-              function selectUser(email, name) {
-                window.opener.postMessage({ email, name }, '*');
-                window.close();
-              }
-            </script>
-          </body>
-        </html>
-      `);
-    }
-    const handleMessage = (event) => {
-      if (event.data?.email) {
-        window.removeEventListener("message", handleMessage);
-        resolve(event.data);
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    setTimeout(() => { window.removeEventListener("message", handleMessage); resolve(null); }, 60000);
-  });
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 const validateLogin = ({ email, password }) => {
@@ -245,32 +137,50 @@ const AuthPage = () => {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
-    setServerError("");
-    try {
-      const googleUser = await simulateGoogleLogin();
-      if (!googleUser) { setGoogleLoading(false); return; }
-      const passwordMap = {
-        "shehani03@unievents.lk": "Student@12345",
-        "ayesha@unievents.lk": "Student@12345",
-        "it21012624@unievents.lk": "Student@12345",
-        "prabhashswarnajith@unievents.lk": "Student@12345",
-      };
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: googleUser.email, password: passwordMap[googleUser.email] || "Student@12345" }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error("Google account not linked. Please sign in with email first.");
-      login(data);
-      navigate(data.role === "ADMIN" ? "/dashboard" : "/");
-    } catch (err) {
-      setServerError(err.message);
-    } finally {
+  // ── Real Google OAuth via @react-oauth/google ────────────────────────────────
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setGoogleLoading(true);
+      setServerError("");
+      try {
+        // Fetch the user's profile from Google
+        const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const profile = await profileRes.json();
+        if (!profile.email) throw new Error("Could not retrieve email from Google.");
+
+        // Send the Google token to our backend for verification and login
+        const res = await fetch(`${API}/api/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email:     profile.email,
+            name:      profile.name,
+            googleId:  profile.sub,
+            imageUrl:  profile.picture,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Google sign-in failed. Please try email/password.");
+        login(data);
+        navigate(data.role === "ADMIN" ? "/dashboard" : "/");
+      } catch (err) {
+        setServerError(err.message);
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setServerError("Google sign-in was cancelled or failed. Please try again.");
       setGoogleLoading(false);
-    }
+    },
+  });
+
+  const handleGoogleLogin = () => {
+    setServerError("");
+    setGoogleLoading(true);
+    googleLogin();
   };
 
   const switchMode = () => {
@@ -352,12 +262,12 @@ const AuthPage = () => {
             {!isLogin && (
               <Field label="Full Name" error={fieldErrors.name}>
                 <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4 pointer-events-none" />
                   <input
                     id="auth-name"
                     type="text"
                     autoComplete="name"
-                    className={`input-field pl-10 ${fieldErrors.name ? "error" : ""}`}
+                    className={`input-field !pl-10 ${fieldErrors.name ? "error" : ""}`}
                     placeholder="Prabhash Swarnajith"
                     value={formData.name}
                     onChange={(e) => update("name", e.target.value)}
@@ -371,11 +281,11 @@ const AuthPage = () => {
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Student ID" error={fieldErrors.studentId}>
                   <div className="relative">
-                    <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                    <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4 pointer-events-none" />
                     <input
                       id="auth-student-id"
                       type="text"
-                      className={`input-field pl-9 ${fieldErrors.studentId ? "error" : ""}`}
+                      className={`input-field !pl-9 ${fieldErrors.studentId ? "error" : ""}`}
                       placeholder="IT21XXXXX"
                       value={formData.studentId}
                       onChange={(e) => update("studentId", e.target.value.toUpperCase())}
@@ -399,12 +309,12 @@ const AuthPage = () => {
             {/* Email */}
             <Field label="Email Address" error={fieldErrors.email}>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4 pointer-events-none" />
                 <input
                   id="auth-email"
                   type="email"
                   autoComplete="email"
-                  className={`input-field pl-10 ${fieldErrors.email ? "error" : ""}`}
+                  className={`input-field !pl-10 ${fieldErrors.email ? "error" : ""}`}
                   placeholder={isLogin ? "you@unievents.lk" : "your.studentid@sliit.lk"}
                   value={formData.email}
                   onChange={(e) => update("email", e.target.value)}
@@ -415,12 +325,12 @@ const AuthPage = () => {
             {/* Password */}
             <Field label="Password" error={fieldErrors.password}>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4 pointer-events-none" />
                 <input
                   id="auth-password"
                   type={showPassword ? "text" : "password"}
                   autoComplete={isLogin ? "current-password" : "new-password"}
-                  className={`input-field pl-10 pr-11 ${fieldErrors.password ? "error" : ""}`}
+                  className={`input-field !pl-10 !pr-11 ${fieldErrors.password ? "error" : ""}`}
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => update("password", e.target.value)}
@@ -428,7 +338,7 @@ const AuthPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition cursor-pointer"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

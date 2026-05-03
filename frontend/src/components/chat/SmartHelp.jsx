@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send, User, Minimize2, Trash2, HelpCircle } from "lucide-react";
 
-const HELP_API_KEY = "AIzaSyDemo_Replace_With_Your_Key";
-const HELP_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${HELP_API_KEY}`;
+const HELP_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "";
+const HELP_URL = "https://api.groq.com/openai/v1/chat/completions";
+const AI_ENABLED = HELP_API_KEY.length > 10;
 
 const SYSTEM_PROMPT = `You are the UniEvents student help desk for a university event management platform.
 
@@ -82,9 +83,30 @@ const SmartHelp = () => {
       .filter((item, index) => item.role !== "bot" || index > 0)
       .slice(-10)
       .map((item) => ({
-        role: item.role === "user" ? "user" : "model",
-        parts: [{ text: item.text }],
+        role: item.role === "user" ? "user" : "assistant",
+        content: item.text,
       }));
+
+  const OFFLINE_REPLIES = {
+    book: "To book an event, browse the Events page and click 'Book Now'. You need to be logged in first.",
+    cancel: "To cancel a booking, go to My Bookings and click Cancel on the booking. Refunds take 3-5 business days.",
+    ticket: "Your QR ticket is in My Bookings after booking is confirmed. Click 'View Ticket' to see it.",
+    venue: "Browse the Venues page to see all campus halls, labs, and outdoor spaces with capacity and amenities.",
+    payment: "We accept online payments via the booking flow. For payment issues, share your reference with Live Support.",
+    refund: "Refunds are processed after cancellation and return to your original payment method within 5 days.",
+    event: "You can find all upcoming events on the Events page. Use filters to search by category or date.",
+    login: "Use your university email and password to log in. Click 'Continue with Google' to use your uni account.",
+    password: "If you forgot your password, contact support at support@unievents.lk with your student ID.",
+    register: "Click 'Sign up here' on the login page. Use your SLIIT email and student ID to create an account.",
+  };
+
+  const getOfflineReply = (text) => {
+    const lower = text.toLowerCase();
+    for (const [key, reply] of Object.entries(OFFLINE_REPLIES)) {
+      if (lower.includes(key)) return reply;
+    }
+    return "Thanks for your question! For detailed help, please use the Live Support button to chat with our team directly. We are available during university hours.";
+  };
 
   const sendMessage = async (text = input.trim()) => {
     if (!text || loading) return;
@@ -95,19 +117,31 @@ const SmartHelp = () => {
     setLoading(true);
 
     try {
-      const history = buildHistory([...messages, userMsg]);
-      const contextHistory = history.slice(0, -1);
+      if (!AI_ENABLED) {
+        // Offline mode: keyword-based instant reply
+        await new Promise((r) => setTimeout(r, 700)); // small typing delay
+        const reply = getOfflineReply(text);
+        setMessages((prev) => [...prev, { role: "bot", text: reply, timestamp: Date.now() }]);
+        if (!open) setUnread((count) => count + 1);
+        return;
+      }
 
+      const history = buildHistory([...messages, userMsg]);
+      
       const res = await fetch(HELP_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${HELP_API_KEY}`
+        },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [...contextHistory, { role: "user", parts: [{ text }] }],
-          generationConfig: {
-            temperature: 0.65,
-            maxOutputTokens: 420,
-          },
+          model: "llama-3.1-8b-instant",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...history
+          ],
+          temperature: 0.7,
+          max_tokens: 512
         }),
       });
 
@@ -117,26 +151,21 @@ const SmartHelp = () => {
       }
 
       const data = await res.json();
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      const reply = data?.choices?.[0]?.message?.content;
       if (!reply) throw new Error("No reply received");
 
       setMessages((prev) => [...prev, { role: "bot", text: reply, timestamp: Date.now() }]);
       if (!open) setUnread((count) => count + 1);
     } catch (err) {
       console.error("Help service error:", err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "bot",
-          text: `I cannot connect right now. Please try again or use Live Support for quick help.\n\nError: ${err.message}`,
-          timestamp: Date.now(),
-          isError: true,
-        },
-      ]);
+      // Fall back to offline mode on API error
+      const reply = getOfflineReply(text);
+      setMessages((prev) => [...prev, { role: "bot", text: reply, timestamp: Date.now() }]);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleKey = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {

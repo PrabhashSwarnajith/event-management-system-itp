@@ -4,6 +4,9 @@ import { Calendar, MapPin, User, Home, Menu, X, LogOut, ChevronDown, Sparkles, T
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
 import { useNavigate } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/auth/AuthPage";
@@ -281,6 +284,7 @@ const Footer = () => (
 // ─── App Shell ────────────────────────────────────────────────────────────────
 const AppShell = () => {
   const location = useLocation();
+  const { user } = useAuth();
   const isAdminDashboard = location.pathname.startsWith("/dashboard");
 
   return (
@@ -307,8 +311,8 @@ const AppShell = () => {
       </main>
       {!isAdminDashboard && <Footer />}
 
-      {/* Global widgets */}
-      {!isAdminDashboard && (
+      {/* Global widgets — only visible to logged-in users */}
+      {!isAdminDashboard && user && (
         <>
           <SmartHelp />
           <LiveChat />
@@ -337,13 +341,15 @@ const DarkModeToggle = () => {
 
 function App() {
   return (
-    <DarkModeProvider>
-      <AuthProvider>
-        <Router>
-          <AppShell />
-        </Router>
-      </AuthProvider>
-    </DarkModeProvider>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <DarkModeProvider>
+        <AuthProvider>
+          <Router>
+            <AppShell />
+          </Router>
+        </AuthProvider>
+      </DarkModeProvider>
+    </GoogleOAuthProvider>
   );
 }
 

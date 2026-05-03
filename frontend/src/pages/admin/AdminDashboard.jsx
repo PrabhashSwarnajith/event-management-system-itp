@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { AlertCircle, Building2, Calendar, CheckCircle, Home, LayoutDashboard, LogOut, RefreshCw, Ticket, Users, X, FileText, MessageCircle } from "lucide-react";
+import { useDarkMode } from "../../context/DarkModeContext";
+import { AlertCircle, Building2, Calendar, CheckCircle, Home, LayoutDashboard, LogOut, RefreshCw, Ticket, Users, X, FileText, MessageCircle, Moon, Sun } from "lucide-react";
 import LiveChatPanel from "../../components/admin/LiveChatPanel";
 import { OverviewSection } from "../../components/admin/sections/OverviewSection";
 import { UsersSection } from "../../components/admin/sections/UsersSection";
@@ -14,6 +15,7 @@ import { emptyForms, toDateTimeLocal } from "../../utils/adminUtils";
 
 const AdminDashboard = () => {
   const { user, authFetch, logout } = useAuth();
+  const { dark, toggle: toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
 
   // State management
@@ -216,17 +218,17 @@ const AdminDashboard = () => {
       : "";
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
         {/* Sidebar */}
-        <aside className="bg-white border-r border-slate-200 p-4 lg:sticky lg:top-0 lg:h-screen">
+        <aside className="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 lg:sticky lg:top-0 lg:h-screen flex flex-col">
           <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white shrink-0">
               <LayoutDashboard className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="font-black text-slate-900">Admin System</p>
-              <p className="truncate text-xs text-slate-500">{user.email}</p>
+              <p className="font-black text-slate-900 dark:text-white">Admin Panel</p>
+              <p className="truncate text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
             </div>
           </div>
 
@@ -236,7 +238,9 @@ const AdminDashboard = () => {
                 key={id}
                 onClick={() => setActive(id)}
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition cursor-pointer ${
-                  active === id ? "bg-indigo-50 text-indigo-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  active === id
+                    ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -249,7 +253,7 @@ const AdminDashboard = () => {
           </nav>
 
           <div className="space-y-1 border-t border-slate-100 pt-4">
-            <Link to="/" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100">
+            <Link to="/" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
               <Home className="h-4 w-4" />
               Student View
             </Link>
@@ -268,14 +272,14 @@ const AdminDashboard = () => {
 
         {/* Main Content */}
         <main className="min-w-0 flex flex-col p-4 sm:p-6 lg:p-8" style={{ minHeight: "100vh" }}>
-          <div className="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="mb-1 text-xs font-black uppercase tracking-wide text-indigo-600">Admin Dashboard</p>
-                <h1 className="text-3xl font-black text-slate-900">{activeSection.label}</h1>
-                <p className="mt-1 max-w-2xl text-sm text-slate-500">{activeSection.description}</p>
+                <p className="mb-1 text-xs font-black uppercase tracking-wide text-indigo-600 dark:text-indigo-400">Admin Dashboard</p>
+                <h1 className="text-2xl font-black text-slate-900 dark:text-white">{activeSection.label}</h1>
+                <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">{activeSection.description}</p>
               </div>
-              <button onClick={adminData.loadData} className="btn-ghost bg-white cursor-pointer">
+              <button onClick={adminData.loadData} className="btn-ghost cursor-pointer">
                 <RefreshCw className="h-4 w-4" />
                 Refresh
               </button>

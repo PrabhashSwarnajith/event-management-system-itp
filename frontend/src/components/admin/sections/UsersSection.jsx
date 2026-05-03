@@ -12,12 +12,12 @@ const AddButton = ({ onClick, label }) => (
 );
 
 const Panel = ({ title, action, exportAction, children }) => (
-  <div className="rounded-lg border border-slate-200 bg-white">
-    <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-      <h2 className="text-lg font-black text-slate-900">{title}</h2>
+  <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-5 py-4">
+      <h2 className="text-base font-black text-slate-900 dark:text-white">{title}</h2>
       <div className="flex items-center gap-2">
         {exportAction && (
-          <button onClick={exportAction} className="btn-ghost h-9 px-3 text-sm cursor-pointer bg-white border border-slate-200">
+          <button onClick={exportAction} className="btn-ghost h-9 px-3 text-sm cursor-pointer">
             <Download className="h-4 w-4" />
             Export CSV
           </button>

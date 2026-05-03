@@ -6,57 +6,65 @@ const AccountLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const linkClass = ({ isActive }) =>
+  const navLink = ({ isActive }) =>
     `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
-      isActive ? "bg-indigo-50 text-indigo-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+      isActive
+        ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400"
+        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
     }`;
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+  const handleLogout = () => { logout(); navigate("/"); };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
-          <aside className="bg-white border border-slate-200 rounded-lg p-4 h-fit lg:sticky lg:top-24 lg:max-h-[calc(100vh-100px)] lg:overflow-y-auto">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-4 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-6">
+
+          {/* Sidebar */}
+          <aside className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 h-fit lg:sticky lg:top-24">
+            {/* User info */}
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
                 <User className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="font-black text-slate-900 truncate">{user?.name || "Account"}</p>
-                <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                <p className="font-bold text-slate-900 dark:text-white truncate text-sm">{user?.name || "Account"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
               </div>
             </div>
 
-            <nav className="space-y-1" aria-label="Account navigation">
-              <NavLink to="/profile" className={linkClass}>
-                <User className="w-4 h-4 flex-shrink-0" />
-                <span>Profile</span>
+            {/* Nav */}
+            <nav className="space-y-1">
+              <NavLink to="/profile" className={navLink}>
+                <User className="w-4 h-4 shrink-0" />
+                Profile
               </NavLink>
-              <NavLink to="/bookings" className={linkClass}>
-                <Ticket className="w-4 h-4 flex-shrink-0" />
-                <span>My Bookings</span>
+              <NavLink to="/bookings" className={navLink}>
+                <Ticket className="w-4 h-4 shrink-0" />
+                My Bookings
               </NavLink>
-              <Link to="/events" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900">
-                <Calendar className="w-4 h-4 flex-shrink-0" />
-                <span>Browse Events</span>
+              <Link
+                to="/events"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition"
+              >
+                <Calendar className="w-4 h-4 shrink-0" />
+                Browse Events
               </Link>
             </nav>
 
-            <div className="border-t border-slate-100 mt-4 pt-4">
+            {/* Logout */}
+            <div className="border-t border-slate-100 dark:border-slate-800 mt-4 pt-4">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 cursor-pointer transition"
+                className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition cursor-pointer"
               >
-                <LogOut className="w-4 h-4 flex-shrink-0" />
-                <span>Sign Out</span>
+                <LogOut className="w-4 h-4 shrink-0" />
+                Sign Out
               </button>
             </div>
           </aside>
 
+          {/* Main content */}
           <section className="min-w-0">{children}</section>
         </div>
       </div>

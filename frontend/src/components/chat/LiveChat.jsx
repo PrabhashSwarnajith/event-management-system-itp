@@ -77,18 +77,21 @@ const CustomerChat = ({ user }) => {
     }
   }, []);
 
-  // Poll every 2 s for admin replies
+  // Poll every 1.5 s for admin replies from localStorage
   useEffect(() => {
     const interval = setInterval(() => {
       const store = readChatStore();
       if (!store.messages) return;
       const agentMsgs = store.messages.filter((m) => m.role === "agent");
-      if (agentMsgs.length > lastAgentMsgCount.current) {
-        setMessages(store.messages);
-        lastAgentMsgCount.current = agentMsgs.length;
-        if (!open) setUnread((c) => c + (agentMsgs.length - lastAgentMsgCount.current));
+      const newCount  = agentMsgs.length;
+      const prevCount = lastAgentMsgCount.current;
+      if (newCount > prevCount) {
+        const diff = newCount - prevCount;          // capture BEFORE updating ref
+        lastAgentMsgCount.current = newCount;       // update ref
+        setMessages(store.messages);               // refresh conversation
+        if (!open) setUnread((c) => c + diff);     // show badge
       }
-    }, 2000);
+    }, 1500);
     return () => clearInterval(interval);
   }, [open]);
 
