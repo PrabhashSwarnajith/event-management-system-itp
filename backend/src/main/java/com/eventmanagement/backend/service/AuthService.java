@@ -54,12 +54,13 @@ public class AuthService {
      * Called after the frontend verifies the Google token and retrieves the profile.
      */
     public AuthResponse googleLogin(Map<String, String> profile) {
-        String email   = profile.get("email");
-        String name    = profile.getOrDefault("name", email.split("@")[0]);
+        String email = profile.get("email");
 
         if (email == null || email.isBlank()) {
             throw new AuthException("Google account email is required");
         }
+
+        String name = profile.getOrDefault("name", email.split("@")[0]);
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             // First-time Google login — auto-register the user
